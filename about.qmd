@@ -2,4 +2,4 @@
 title: "Acerca de"
 ---
 
-Proyecto en colaboración con el profesor Sandro Macussi.
+Proyecto en colaboración con el profesor Sandro Macassi.
