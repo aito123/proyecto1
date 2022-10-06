@@ -159,4 +159,4 @@ xlsx_files %>%
 
 ```
 
-Descargue el excel de [`edges.xlsx`](https://www.google.com/) y [`vertices.xlsx`](https://www.google.com/).
+Descargue el excel de [`edges.xlsx`](https://github.com/aito123/proyecto1/raw/master/data/edges.xlsx) y [`vertices.xlsx`](https://github.com/aito123/proyecto1/raw/master/data/vertices.xlsx).
