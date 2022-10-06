@@ -1,15 +1,19 @@
 project:
   type: website
 lang: es
+execute:
+  freeze: auto  # re-render only when source changes
 
 website:
-  title: "proyecto1"
+  title: "Proyecto Tweets"
   navbar:
     background: primary
-    left:
+    right:
       - href: index.qmd
-        text: Home
-      - about.qmd
+        text: "Home"
+      - text: "Menu"
+        menu:
+          - 1_limpiando_data.qmd
 
 format:
   html:
