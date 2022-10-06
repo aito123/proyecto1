@@ -1,0 +1,161 @@
+---
+title: "1. Limpiando la data"
+author: "Santiago Sotelo"
+date: 10/05/2022
+execute: 
+  echo: false
+
+---
+
+```{r}
+#| include: false
+pacman::p_load(tidyverse, rio, gt, here, janitor, fs)
+here::i_am("1_limpiando_data.qmd")
+
+```
+
+
+## Problema
+
+- Se necesita procesar los diferentes excels en los que se encuentran los hashtags en cuestión. La totalidad de la data tiene las siguientes características:
+  - **`r fs::dir_info("archivos/4. Bases de datos con Análisis") %>% nrow()`** archivos.
+  - La totalidad de los archivos excels pesa alrededor de **`r fs::dir_info("archivos/4. Bases de datos con Análisis") %>% summarise(size=sum(size))`B**.
+  
+## Objetivo
+
+- Juntar toda la data útil en un solo archivo.
+  - Hojas de cálculo a utilizar: _Edges_, _Vertices_.
+  
+## Importar data
+
+```{r}
+xlsx_files <- fs::dir_ls("archivos/4. Bases de datos con Análisis", regexp = "\\.xlsx$")
+
+edges<- 
+  xlsx_files %>% #lista de vectores
+  map(import, skip = 1) %>%   #eliminar columnas extras presentes en algunas bases.
+  map(
+    ~ .x %>%
+      clean_names() %>% 
+      drop_na(vertex_1) %>% #remover filas que tienen la columna vertex_1 vacía. Se removieron un total de 727 filas. #dia52 tenía 725 filas vacías
+      {if("vertex_1_group" %in% names(.)) select(.,-vertex_1_group) else .} %>% # en #Coronavid19-OFi.xlsx, #Coronavid19-OFi-Copy.xlsx, #YoApoyoAlCapitanCueva.xlsx
+      {if("vertex_2_group" %in% names(.)) select(.,-vertex_2_group) else .} %>% # en #Coronavid19-OFi.xlsx, #Coronavid19-OFi-Copy.xlsx, #YoApoyoAlCapitanCueva.xlsx
+      {if("edge_weight" %in% names(.)) select(.,-edge_weight) else .} %>% # en #Coronavid19-OFi.xlsx, #Coronavid19-OFi-Copy.xlsx, 
+      {if("vertex_3" %in% names(.)) select(.,-vertex_3) else .} %>% # en #D+≠a65.xlsx
+      {if("vertex_22" %in% names(.)) select(.,-vertex_22) else .} # en #D+≠a65.xlsx
+  ) %>% 
+  map_dfr(as.data.frame, .id = "source") %>% #unir todas las bases en un solo archivo
+  separate(source, into = c(NA, NA, "source"), sep = "/") %>%   #primera columna nombre del excel.
+  janitor::remove_empty("cols") #remover columnas vacías. de 41 variables a 26 variables
+
+vertices<-
+  xlsx_files %>% 
+  map(import, skip = 1, sheet = 2) %>% 
+  map(
+    ~ .x %>%
+      clean_names() %>%
+      drop_na(vertex) %>% #remover filas que tienen la columna vertex_1 vacía. Se removieron un total de 1447 filas. #dia62 tenía todas las filas vacías
+      {if("vertex_group" %in% names(.)) select(.,-vertex_group) else .} %>% 
+      {if("columna1" %in% names(.)) select(.,-columna1) else .} %>% # en #DigoNomas
+      {if("columna2" %in% names(.)) select(.,-columna2) else .} # en #DigoNomas
+  ) %>% 
+  map_dfr(as.data.frame, .id = "source") %>%  #unir todas las bases en un solo archivo
+  separate(source, into = c(NA, NA, "source"), sep = "/") %>% #primera columna nombre del excel.
+  janitor::remove_empty("cols") #remover columnas vacías. de 52 variables a 35 variables
+
+```
+
+- Hay archivos con el sufijo `-Copy` en el nombre lo cual denota que es un duplicado de un hashtag.
+- **Edges**
+  - Las bases de datos unificadas de edges tienen **`r edges %>% nrow()`** observaciones y **`r edges %>% ncol()`** variables.
+  - El objeto creado en R que unifica todas las bases de datos de edges ocupa **`r scales::unit_format(unit = "MB", scale = 1e-6, accuracy = 0.01)(as.numeric(lobstr::obj_size(edges)))`** de la memoria RAM en la computadora.
+- **Vértices**
+  - Las bases de datos unificadas de vértices tienen **`r vertices %>% nrow()`** observaciones y **`r vertices %>% ncol()`** variables.
+  - El objeto creado en R que unifica todas las bases de datos de vértices ocupa **`r scales::unit_format(unit = "MB", scale = 1e-6, accuracy = 0.01)(as.numeric(lobstr::obj_size(vertices)))`** de la memoria RAM en la computadora.
+
+```{r}
+#| label: tbl-edges
+#| tbl-cap: Total de edges por cada base de datos 
+
+edges %>% 
+  count(source) %>% 
+  janitor::adorn_totals() %>% 
+  gt() %>%
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(rows = source == "Total")
+  ) %>% 
+  tab_options(
+    column_labels.font.weight = "bold",
+    row.striping.include_table_body = TRUE
+    )
+
+```
+
+```{r}
+#| label: tbl-vertices
+#| tbl-cap: Total de vértices por cada base de datos 
+
+vertices %>% 
+  count(source) %>% 
+  janitor::adorn_totals() %>% 
+  gt() %>%
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(rows = source == "Total")
+  ) %>% 
+  tab_options(
+    column_labels.font.weight = "bold",
+    row.striping.include_table_body = TRUE
+    )
+
+
+```
+
+## Exportar data
+
+```{r}
+edges %>% 
+  export(here("data/edges.xlsx"),
+         ColWidths="auto",
+         asTable=TRUE,
+         overwrite=TRUE)
+
+vertices %>% 
+  export(here("data/vertices.xlsx"),
+         ColWidths="auto",
+         asTable=TRUE,
+         overwrite=TRUE)
+
+```
+
+- El archivo `edges.xlsx` unificado pesa **`r fs::file_info("data/edges.xlsx") %>% summarise(size=sum(size))`B**.
+- El archivo `vertices.xlsx` unificado pesa **`r fs::file_info("data/vertices.xlsx") %>% summarise(size=sum(size))`B**.
+
+```{r}
+#| label: notas
+#| eval: false
+#| include: false
+
+
+# vertex_3 ? vertex_22 ?
+edges<-
+  xlsx_files %>% 
+  map_dfr(import, skip = 1,
+          .id = "source") %>% 
+  clean_names() %>% 
+  drop_na(vertex_1)# averiguar por que hay dos columnas más de las que deberia
+
+xlsx_files %>% 
+  map(import, skip = 1) %>% 
+  map(~ .x %>%
+        clean_names() %>%
+        names() %>% 
+        length())# no tienen la misma cantidad de columnas.
+
+```
+

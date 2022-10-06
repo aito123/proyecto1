@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Santiago Sotelo">
+
+<title>proyecto1 - 1. Limpiando la data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "Sín resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la busqueda",
+    "search-hide-matches-text": "Esconder resultados adicionales",
+    "search-more-match-text": "hay más resultados en este documento",
+    "search-more-matches-text": "más resultados en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Eviar"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">proyecto1</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html">Home</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./about.html">About</a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">En esta página</h2>
+   
+  <ul>
+  <li><a href="#problema" id="toc-problema" class="nav-link active" data-scroll-target="#problema">Problema</a></li>
+  <li><a href="#objetivo" id="toc-objetivo" class="nav-link" data-scroll-target="#objetivo">Objetivo</a></li>
+  <li><a href="#importar-data" id="toc-importar-data" class="nav-link" data-scroll-target="#importar-data">Importar data</a></li>
+  <li><a href="#exportar-data" id="toc-exportar-data" class="nav-link" data-scroll-target="#exportar-data">Exportar data</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">1. Limpiando la data</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Autor</div>
+    <div class="quarto-title-meta-contents">
+             <p>Santiago Sotelo </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Fecha de Publicación</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">5 de octubre de 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="problema" class="level2">
+<h2 class="anchored" data-anchor-id="problema">Problema</h2>
+<ul>
+<li>Se necesita procesar los diferentes excels en los que se encuentran los hashtags en cuestión. La totalidad de la data tiene las siguientes características:
+<ul>
+<li><strong>127</strong> archivos.</li>
+<li>La totalidad de los archivos excels pesa alrededor de <strong>59MB</strong>.</li>
+</ul></li>
+</ul>
+</section>
+<section id="objetivo" class="level2">
+<h2 class="anchored" data-anchor-id="objetivo">Objetivo</h2>
+<ul>
+<li>Juntar toda la data útil en un solo archivo.
+<ul>
+<li>Hojas de cálculo a utilizar: <em>Edges</em>, <em>Vertices</em>.</li>
+</ul></li>
+</ul>
+</section>
+<section id="importar-data" class="level2">
+<h2 class="anchored" data-anchor-id="importar-data">Importar data</h2>
+<div class="cell">
+
+</div>
+<ul>
+<li>Hay archivos con el sufijo <code>-Copy</code> en el nombre lo cual denota que es un duplicado de un hashtag.</li>
+<li><strong>Edges</strong>
+<ul>
+<li>Las bases de datos unificadas de edges tienen <strong>53886</strong> observaciones y <strong>26</strong> variables.</li>
+<li>El objeto creado en R que unifica todas las bases de datos de edges ocupa <strong>34.41 MB</strong> de la memoria RAM en la computadora.</li>
+</ul></li>
+<li><strong>Vértices</strong>
+<ul>
+<li>Las bases de datos unificadas de vértices tienen <strong>34669</strong> observaciones y <strong>35</strong> variables.</li>
+<li>El objeto creado en R que unifica todas las bases de datos de vértices ocupa <strong>24.35 MB</strong> de la memoria RAM en la computadora.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-edges" class="anchored">
+
+<div id="cysnwuyddo" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#cysnwuyddo .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#cysnwuyddo .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cysnwuyddo .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#cysnwuyddo .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#cysnwuyddo .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cysnwuyddo .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cysnwuyddo .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#cysnwuyddo .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#cysnwuyddo .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#cysnwuyddo .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#cysnwuyddo .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#cysnwuyddo .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#cysnwuyddo .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#cysnwuyddo .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#cysnwuyddo .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#cysnwuyddo .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#cysnwuyddo .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cysnwuyddo .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#cysnwuyddo .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#cysnwuyddo .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cysnwuyddo .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#cysnwuyddo .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#cysnwuyddo .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cysnwuyddo .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cysnwuyddo .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#cysnwuyddo .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#cysnwuyddo .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cysnwuyddo .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cysnwuyddo .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cysnwuyddo .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cysnwuyddo .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cysnwuyddo .gt_left {
+  text-align: left;
+}
+
+#cysnwuyddo .gt_center {
+  text-align: center;
+}
+
+#cysnwuyddo .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#cysnwuyddo .gt_font_normal {
+  font-weight: normal;
+}
+
+#cysnwuyddo .gt_font_bold {
+  font-weight: bold;
+}
+
+#cysnwuyddo .gt_font_italic {
+  font-style: italic;
+}
+
+#cysnwuyddo .gt_super {
+  font-size: 65%;
+}
+
+#cysnwuyddo .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em;
+}
+
+#cysnwuyddo .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#cysnwuyddo .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#cysnwuyddo .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#cysnwuyddo .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#cysnwuyddo .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#cysnwuyddo .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table"><caption>Tabla 1:  Total de edges por cada base de datos </caption>
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col">source</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col">n</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-23 #Coronavid19-OFi-Copy.xlsx</td>
+<td class="gt_row gt_right">71</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-23 #Coronavid19-OFi.xlsx</td>
+<td class="gt_row gt_right gt_striped">71</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-23 #GeneralDelAire.xlsx</td>
+<td class="gt_row gt_right">211</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-23 #MilagrosLeiva.xlsx</td>
+<td class="gt_row gt_right gt_striped">619</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-23 #YoApoyoAlCapitanCueva.xlsx</td>
+<td class="gt_row gt_right">936</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-23_#YoMeSumo.xlsx</td>
+<td class="gt_row gt_right gt_striped">346</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-24 #CuarentenaPeru.xlsx</td>
+<td class="gt_row gt_right">554</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-24 #tipsdeaislamiento.xlsx</td>
+<td class="gt_row gt_right gt_striped">262</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-24 #YoPuedoYoPago.xlsx</td>
+<td class="gt_row gt_right">191</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-25 #NoTeQuieroEnCasaLatina.xlsx</td>
+<td class="gt_row gt_right gt_striped">378</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-25 #SiPudieraSalirYo.xlsx</td>
+<td class="gt_row gt_right">372</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-26 #13diasmassin.xlsx</td>
+<td class="gt_row gt_right gt_striped">392</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-26 #cuarentenasinlucro.xlsx</td>
+<td class="gt_row gt_right">107</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-26 #Piura.xlsx</td>
+<td class="gt_row gt_right gt_striped">464</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-27 #CuandoEstoSeAcabe.xlsx</td>
+<td class="gt_row gt_right">19</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-27 #ElDoceDeAbrilYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">244</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-27_#RedDePersonas.xlsx</td>
+<td class="gt_row gt_right">40</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-28_#saliendodecuarentena.xlsx</td>
+<td class="gt_row gt_right gt_striped">12</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-29_ #SueltaMiPlataMalditaAFP.xlsx</td>
+<td class="gt_row gt_right">605</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-29_#EnEstaCuarentenaSupeQue.xlsx</td>
+<td class="gt_row gt_right gt_striped">557</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-01_ ##LiberenFranjaEducativa.xlsx</td>
+<td class="gt_row gt_right">339</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-01_ #EnCuarentenaYoMeDedicoA.xlsx</td>
+<td class="gt_row gt_right gt_striped">286</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-02_ #ParaSobrevivirLaCuarentenaYo.xlsx</td>
+<td class="gt_row gt_right">201</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-03_ #CuandoEstoTermineYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">208</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-03_ #PeriodistasASusCasas.xlsx</td>
+<td class="gt_row gt_right">577</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-06_#AprendeEnCasa.xlsx</td>
+<td class="gt_row gt_right gt_striped">104</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-06_#TeFumigoSi.xlsx</td>
+<td class="gt_row gt_right">557</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-07_#EnEstaCuarentenaSeMeAntoja.xlsx</td>
+<td class="gt_row gt_right gt_striped">362</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-08_#coronavirusperu.xlsx</td>
+<td class="gt_row gt_right">1121</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-08_#GraciasTecnicos.xlsx</td>
+<td class="gt_row gt_right gt_striped">235</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-09_#FueraMatuk.xlsx</td>
+<td class="gt_row gt_right">681</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-10_#lodescubresenlacuarentena.xlsx</td>
+<td class="gt_row gt_right gt_striped">332</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-11_#EstoTerminaraY.xlsx</td>
+<td class="gt_row gt_right">196</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-11_#UnidosDesdeCasa.xlsx</td>
+<td class="gt_row gt_right gt_striped">426</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-12_#Butters.xlsx</td>
+<td class="gt_row gt_right">347</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-12_#ResucitoSi.xlsx</td>
+<td class="gt_row gt_right gt_striped">350</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-13_#ExplotacionPerfecta.xlsx</td>
+<td class="gt_row gt_right">476</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-13_#PrometoQueAlSalirDeEsta.xlsx</td>
+<td class="gt_row gt_right gt_striped">225</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-13_#sintonosyo.xlsx</td>
+<td class="gt_row gt_right">9</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-13_#temultosi.xlsx</td>
+<td class="gt_row gt_right gt_striped">212</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-14_#“Carretera Central”.xlsx</td>
+<td class="gt_row gt_right">242</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-14_#Mintra.xlsx</td>
+<td class="gt_row gt_right gt_striped">146</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-14_#suspensionperfecta.xlsx</td>
+<td class="gt_row gt_right">379</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-15_#AntesDeEstaCuarentenaYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">243</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-15_#QuePaguenLosRicos.xlsx</td>
+<td class="gt_row gt_right">297</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-15_#UnMesSinPoder.xlsx</td>
+<td class="gt_row gt_right gt_striped">851</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-16_#BonoUniversal.xlsx</td>
+<td class="gt_row gt_right">287</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-16_#YoDoyPositivoA.xlsx</td>
+<td class="gt_row gt_right gt_striped">277</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-17_#OtroFindeSin.xlsx</td>
+<td class="gt_row gt_right">656</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-18_#AhoraMeHaceMuchaFalta.xlsx</td>
+<td class="gt_row gt_right gt_striped">311</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-18_#YoYaMeOlvideDe.xlsx</td>
+<td class="gt_row gt_right">314</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-19_#QuePaguenLosRicos.xlsx</td>
+<td class="gt_row gt_right gt_striped">442</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-19_#TrabandoConFuerza.xlsx</td>
+<td class="gt_row gt_right">103</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-20_#Dia36.xlsx</td>
+<td class="gt_row gt_right gt_striped">336</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-20_#YoYaNoRecuerdo.xlsx</td>
+<td class="gt_row gt_right">267</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-21_#CuandoPaseLa40TenaYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">649</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-21_#Dia37.xlsx</td>
+<td class="gt_row gt_right">541</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-21_#EstoAcabaraCuando.xlsx</td>
+<td class="gt_row gt_right gt_striped">90</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-22_#AlBordeDelColapsoYo.xlsx</td>
+<td class="gt_row gt_right">408</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-22_#Dia38.xlsx</td>
+<td class="gt_row gt_right gt_striped">440</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-22_#KeikoLibertad.xlsx</td>
+<td class="gt_row gt_right">514</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-23_#Dia40.xlsx</td>
+<td class="gt_row gt_right gt_striped">29</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-23_#LaCuarentenaSeExtiendeHasta.xlsx</td>
+<td class="gt_row gt_right">222</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-24_#BonoFamiliarUniversal.xlsx</td>
+<td class="gt_row gt_right gt_striped">190</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-24_#BonoUniversalparaResistir.xlsx</td>
+<td class="gt_row gt_right">592</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-25_#TerminaTodoYYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">492</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-26_#EMPATIAUSIL.xlsx</td>
+<td class="gt_row gt_right">298</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-26_#OrgulloPUCP.xlsx</td>
+<td class="gt_row gt_right gt_striped">618</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-27_#MarionetaAlva.xlsx</td>
+<td class="gt_row gt_right">34</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-27_#SinReusYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">873</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-28_#En40tenaAprend+≠.xlsx</td>
+<td class="gt_row gt_right">785</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-28_#ParaPagarUnaBoletaPUCP.xlsx</td>
+<td class="gt_row gt_right gt_striped">574</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-29_#deyapatucovid.xlsx</td>
+<td class="gt_row gt_right">757</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-29_#MensajeQueYoEspero.xlsx</td>
+<td class="gt_row gt_right gt_striped">401</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-29_#NoSeanFrescos.xlsx</td>
+<td class="gt_row gt_right">411</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-29_#PaltaEmocionada.xlsx</td>
+<td class="gt_row gt_right gt_striped">2478</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-29_#SueltaMiPlataMalditaAFP.xlsx</td>
+<td class="gt_row gt_right">332</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-30_#CuandoVuelvaASalir.xlsx</td>
+<td class="gt_row gt_right gt_striped">689</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-30_#DigoNomas.xlsx</td>
+<td class="gt_row gt_right">306</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-30_#NarcoIndultos.xlsx</td>
+<td class="gt_row gt_right gt_striped">132</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-01_#QuePaguenLosRicos.xlsx</td>
+<td class="gt_row gt_right">531</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-01_#VizcarraNoSeasFresco.xlsx</td>
+<td class="gt_row gt_right gt_striped">395</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-03_#ConLaCuarentenaAprend+≠.xlsx</td>
+<td class="gt_row gt_right">519</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-03_#Dia49.xlsx</td>
+<td class="gt_row gt_right gt_striped">478</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-04_#Corrupci+›nSinMascarilla.xlsx</td>
+<td class="gt_row gt_right">103</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-04_#Dia50.xlsx</td>
+<td class="gt_row gt_right gt_striped">408</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-05_#Dia51.xlsx</td>
+<td class="gt_row gt_right">470</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-06_#dia52.xlsx</td>
+<td class="gt_row gt_right gt_striped">819</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-06_#SiLaCuarentenaSigue.xlsx</td>
+<td class="gt_row gt_right">996</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-07_#Dia53.xlsx</td>
+<td class="gt_row gt_right gt_striped">482</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-08_#Dia54.xlsx</td>
+<td class="gt_row gt_right">648</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-09_#BonoUniversal.xlsx</td>
+<td class="gt_row gt_right gt_striped">294</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-09_#CuarentenaPeru.xlsx</td>
+<td class="gt_row gt_right">731</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-09_#FueraZamora.xlsx</td>
+<td class="gt_row gt_right gt_striped">522</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-10_#Dia56.xlsx</td>
+<td class="gt_row gt_right">297</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-11_#Dia57.xlsx</td>
+<td class="gt_row gt_right gt_striped">514</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-11_#FueraZamora.xlsx</td>
+<td class="gt_row gt_right">524</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-11_#SinPandemiaYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">637</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-12_#Dia58.xlsx</td>
+<td class="gt_row gt_right">559</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-13_#Dia59.xlsx</td>
+<td class="gt_row gt_right gt_striped">453</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-13_#EnCuarentenaElAmorEs.xlsx</td>
+<td class="gt_row gt_right">355</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-13_#FueraMolinelli.xlsx</td>
+<td class="gt_row gt_right gt_striped">479</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-14_#BonoRural.xlsx</td>
+<td class="gt_row gt_right">160</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-14_#Dia60.xlsx</td>
+<td class="gt_row gt_right gt_striped">445</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-14_#NiEnCuarentena.xlsx</td>
+<td class="gt_row gt_right">433</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-14_#TeCuidoPeru.xlsx</td>
+<td class="gt_row gt_right gt_striped">135</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-15_#Dia61.xlsx</td>
+<td class="gt_row gt_right">616</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-15_#NoSalgoCuando.xlsx</td>
+<td class="gt_row gt_right gt_striped">42</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-15_#SiFueraUnVirusYo.xlsx</td>
+<td class="gt_row gt_right">372</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-16_#Dia62.xlsx</td>
+<td class="gt_row gt_right gt_striped">447</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-16_#IdiotasEnCuarentena.xlsx</td>
+<td class="gt_row gt_right">343</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-17_#Dia63.xlsx</td>
+<td class="gt_row gt_right gt_striped">335</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-17_#MafiaMoqueguana.xlsx</td>
+<td class="gt_row gt_right">313</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-18_#Dia64.xlsx</td>
+<td class="gt_row gt_right gt_striped">567</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-19_#D+≠a65.xlsx</td>
+<td class="gt_row gt_right">762</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-19_#Extra+›oTodoMenos.xlsx</td>
+<td class="gt_row gt_right gt_striped">609</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-20_#BonoFamiliarUniversal.xlsx</td>
+<td class="gt_row gt_right">605</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-20_#JuroQueSiSobrevivo.xlsx</td>
+<td class="gt_row gt_right gt_striped">339</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-20_#VizcarraEsElProblema.xlsx</td>
+<td class="gt_row gt_right">607</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-21_#Dia67.xlsx</td>
+<td class="gt_row gt_right gt_striped">497</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-21_#SinBonoYo.xlsx</td>
+<td class="gt_row gt_right">651</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-22_#CuandoAcabeLaCuarentenaYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">393</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-22_#CuandoTeVeaDeNuevo.xlsx</td>
+<td class="gt_row gt_right">471</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-22_#floreocomovizcarra.xlsx</td>
+<td class="gt_row gt_right gt_striped">304</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-22_#UnMesM+°sSin.xlsx</td>
+<td class="gt_row gt_right">1137</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-23_#Dia69.xlsx</td>
+<td class="gt_row gt_right gt_striped">366</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-23_#MientoComoPeru21.xlsx</td>
+<td class="gt_row gt_right">22</td></tr>
+    <tr><td class="gt_row gt_left gt_striped" style="font-weight: bold;">Total</td>
+<td class="gt_row gt_right gt_striped" style="font-weight: bold;">53886</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-vertices" class="anchored">
+
+<div id="lxpbgsjlxq" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#lxpbgsjlxq .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#lxpbgsjlxq .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lxpbgsjlxq .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#lxpbgsjlxq .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#lxpbgsjlxq .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lxpbgsjlxq .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lxpbgsjlxq .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#lxpbgsjlxq .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#lxpbgsjlxq .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#lxpbgsjlxq .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#lxpbgsjlxq .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#lxpbgsjlxq .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#lxpbgsjlxq .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#lxpbgsjlxq .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#lxpbgsjlxq .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#lxpbgsjlxq .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#lxpbgsjlxq .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lxpbgsjlxq .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#lxpbgsjlxq .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#lxpbgsjlxq .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lxpbgsjlxq .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#lxpbgsjlxq .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#lxpbgsjlxq .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lxpbgsjlxq .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lxpbgsjlxq .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#lxpbgsjlxq .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#lxpbgsjlxq .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lxpbgsjlxq .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lxpbgsjlxq .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lxpbgsjlxq .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lxpbgsjlxq .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lxpbgsjlxq .gt_left {
+  text-align: left;
+}
+
+#lxpbgsjlxq .gt_center {
+  text-align: center;
+}
+
+#lxpbgsjlxq .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#lxpbgsjlxq .gt_font_normal {
+  font-weight: normal;
+}
+
+#lxpbgsjlxq .gt_font_bold {
+  font-weight: bold;
+}
+
+#lxpbgsjlxq .gt_font_italic {
+  font-style: italic;
+}
+
+#lxpbgsjlxq .gt_super {
+  font-size: 65%;
+}
+
+#lxpbgsjlxq .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em;
+}
+
+#lxpbgsjlxq .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#lxpbgsjlxq .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#lxpbgsjlxq .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#lxpbgsjlxq .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#lxpbgsjlxq .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#lxpbgsjlxq .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table"><caption>Tabla 2:  Total de vértices por cada base de datos </caption>
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col">source</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col">n</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-23 #Coronavid19-OFi-Copy.xlsx</td>
+<td class="gt_row gt_right">85</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-23 #Coronavid19-OFi.xlsx</td>
+<td class="gt_row gt_right gt_striped">85</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-23 #GeneralDelAire.xlsx</td>
+<td class="gt_row gt_right">198</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-23 #MilagrosLeiva.xlsx</td>
+<td class="gt_row gt_right gt_striped">511</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-23 #YoApoyoAlCapitanCueva.xlsx</td>
+<td class="gt_row gt_right">842</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-23_#YoMeSumo.xlsx</td>
+<td class="gt_row gt_right gt_striped">290</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-24 #CuarentenaPeru.xlsx</td>
+<td class="gt_row gt_right">516</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-24 #tipsdeaislamiento.xlsx</td>
+<td class="gt_row gt_right gt_striped">293</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-24 #YoPuedoYoPago.xlsx</td>
+<td class="gt_row gt_right">190</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-25 #NoTeQuieroEnCasaLatina.xlsx</td>
+<td class="gt_row gt_right gt_striped">356</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-25 #SiPudieraSalirYo.xlsx</td>
+<td class="gt_row gt_right">115</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-26 #13diasmassin.xlsx</td>
+<td class="gt_row gt_right gt_striped">308</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-26 #cuarentenasinlucro.xlsx</td>
+<td class="gt_row gt_right">471</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-26 #Piura.xlsx</td>
+<td class="gt_row gt_right gt_striped">500</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-27 #CuandoEstoSeAcabe.xlsx</td>
+<td class="gt_row gt_right">27</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-27 #ElDoceDeAbrilYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">50</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-27_#RedDePersonas.xlsx</td>
+<td class="gt_row gt_right">31</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-28_#saliendodecuarentena.xlsx</td>
+<td class="gt_row gt_right gt_striped">15</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-03-29_ #SueltaMiPlataMalditaAFP.xlsx</td>
+<td class="gt_row gt_right">429</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-03-29_#EnEstaCuarentenaSupeQue.xlsx</td>
+<td class="gt_row gt_right gt_striped">190</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-01_ ##LiberenFranjaEducativa.xlsx</td>
+<td class="gt_row gt_right">165</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-01_ #EnCuarentenaYoMeDedicoA.xlsx</td>
+<td class="gt_row gt_right gt_striped">158</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-02_ #ParaSobrevivirLaCuarentenaYo.xlsx</td>
+<td class="gt_row gt_right">88</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-03_ #CuandoEstoTermineYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">186</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-03_ #PeriodistasASusCasas.xlsx</td>
+<td class="gt_row gt_right">470</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-06_#AprendeEnCasa.xlsx</td>
+<td class="gt_row gt_right gt_striped">179</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-06_#TeFumigoSi.xlsx</td>
+<td class="gt_row gt_right">156</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-07_#EnEstaCuarentenaSeMeAntoja.xlsx</td>
+<td class="gt_row gt_right gt_striped">117</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-08_#coronavirusperu.xlsx</td>
+<td class="gt_row gt_right">886</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-08_#GraciasTecnicos.xlsx</td>
+<td class="gt_row gt_right gt_striped">85</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-09_#FueraMatuk.xlsx</td>
+<td class="gt_row gt_right">429</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-10_#lodescubresenlacuarentena.xlsx</td>
+<td class="gt_row gt_right gt_striped">171</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-11_#EstoTerminaraY.xlsx</td>
+<td class="gt_row gt_right">76</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-11_#UnidosDesdeCasa.xlsx</td>
+<td class="gt_row gt_right gt_striped">195</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-12_#Butters.xlsx</td>
+<td class="gt_row gt_right">370</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-12_#ResucitoSi.xlsx</td>
+<td class="gt_row gt_right gt_striped">91</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-13_#ExplotacionPerfecta.xlsx</td>
+<td class="gt_row gt_right">321</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-13_#PrometoQueAlSalirDeEsta.xlsx</td>
+<td class="gt_row gt_right gt_striped">136</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-13_#sintonosyo.xlsx</td>
+<td class="gt_row gt_right">10</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-13_#temultosi.xlsx</td>
+<td class="gt_row gt_right gt_striped">92</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-14_#“Carretera Central”.xlsx</td>
+<td class="gt_row gt_right">284</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-14_#Mintra.xlsx</td>
+<td class="gt_row gt_right gt_striped">195</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-14_#suspensionperfecta.xlsx</td>
+<td class="gt_row gt_right">328</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-15_#AntesDeEstaCuarentenaYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">160</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-15_#QuePaguenLosRicos.xlsx</td>
+<td class="gt_row gt_right">245</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-15_#UnMesSinPoder.xlsx</td>
+<td class="gt_row gt_right gt_striped">278</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-16_#BonoUniversal.xlsx</td>
+<td class="gt_row gt_right">280</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-16_#YoDoyPositivoA.xlsx</td>
+<td class="gt_row gt_right gt_striped">175</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-17_#OtroFindeSin.xlsx</td>
+<td class="gt_row gt_right">161</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-18_#AhoraMeHaceMuchaFalta.xlsx</td>
+<td class="gt_row gt_right gt_striped">208</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-18_#YoYaMeOlvideDe.xlsx</td>
+<td class="gt_row gt_right">153</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-19_#QuePaguenLosRicos.xlsx</td>
+<td class="gt_row gt_right gt_striped">237</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-19_#TrabandoConFuerza.xlsx</td>
+<td class="gt_row gt_right">104</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-20_#Dia36.xlsx</td>
+<td class="gt_row gt_right gt_striped">331</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-20_#YoYaNoRecuerdo.xlsx</td>
+<td class="gt_row gt_right">109</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-21_#CuandoPaseLa40TenaYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">174</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-21_#Dia37.xlsx</td>
+<td class="gt_row gt_right">429</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-21_#EstoAcabaraCuando.xlsx</td>
+<td class="gt_row gt_right gt_striped">57</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-22_#AlBordeDelColapsoYo.xlsx</td>
+<td class="gt_row gt_right">109</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-22_#Dia38.xlsx</td>
+<td class="gt_row gt_right gt_striped">358</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-22_#KeikoLibertad.xlsx</td>
+<td class="gt_row gt_right">350</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-23_#Dia40.xlsx</td>
+<td class="gt_row gt_right gt_striped">44</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-23_#LaCuarentenaSeExtiendeHasta.xlsx</td>
+<td class="gt_row gt_right">133</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-24_#BonoFamiliarUniversal.xlsx</td>
+<td class="gt_row gt_right gt_striped">177</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-24_#BonoUniversalparaResistir.xlsx</td>
+<td class="gt_row gt_right">425</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-25_#TerminaTodoYYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">150</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-26_#EMPATIAUSIL.xlsx</td>
+<td class="gt_row gt_right">101</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-26_#OrgulloPUCP.xlsx</td>
+<td class="gt_row gt_right gt_striped">498</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-27_#MarionetaAlva.xlsx</td>
+<td class="gt_row gt_right">36</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-27_#SinReusYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">222</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-28_#En40tenaAprend+≠.xlsx</td>
+<td class="gt_row gt_right">271</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-28_#ParaPagarUnaBoletaPUCP.xlsx</td>
+<td class="gt_row gt_right gt_striped">294</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-29_#deyapatucovid.xlsx</td>
+<td class="gt_row gt_right">341</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-29_#MensajeQueYoEspero.xlsx</td>
+<td class="gt_row gt_right gt_striped">227</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-29_#NoSeanFrescos.xlsx</td>
+<td class="gt_row gt_right">451</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-29_#PaltaEmocionada.xlsx</td>
+<td class="gt_row gt_right gt_striped">1515</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-29_#SueltaMiPlataMalditaAFP.xlsx</td>
+<td class="gt_row gt_right">235</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-30_#CuandoVuelvaASalir.xlsx</td>
+<td class="gt_row gt_right gt_striped">197</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-04-30_#DigoNomas.xlsx</td>
+<td class="gt_row gt_right">324</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-04-30_#NarcoIndultos.xlsx</td>
+<td class="gt_row gt_right gt_striped">160</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-01_#QuePaguenLosRicos.xlsx</td>
+<td class="gt_row gt_right">219</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-01_#VizcarraNoSeasFresco.xlsx</td>
+<td class="gt_row gt_right gt_striped">365</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-03_#ConLaCuarentenaAprend+≠.xlsx</td>
+<td class="gt_row gt_right">203</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-03_#Dia49.xlsx</td>
+<td class="gt_row gt_right gt_striped">369</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-04_#Corrupci+›nSinMascarilla.xlsx</td>
+<td class="gt_row gt_right">87</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-04_#Dia50.xlsx</td>
+<td class="gt_row gt_right gt_striped">358</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-05_#Dia51.xlsx</td>
+<td class="gt_row gt_right">387</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-06_#dia52.xlsx</td>
+<td class="gt_row gt_right gt_striped">644</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-06_#SiLaCuarentenaSigue.xlsx</td>
+<td class="gt_row gt_right">590</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-07_#Dia53.xlsx</td>
+<td class="gt_row gt_right gt_striped">386</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-08_#Dia54.xlsx</td>
+<td class="gt_row gt_right">499</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-09_#BonoUniversal.xlsx</td>
+<td class="gt_row gt_right gt_striped">277</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-09_#CuarentenaPeru.xlsx</td>
+<td class="gt_row gt_right">571</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-09_#FueraZamora.xlsx</td>
+<td class="gt_row gt_right gt_striped">329</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-10_#Dia56.xlsx</td>
+<td class="gt_row gt_right">218</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-11_#Dia57.xlsx</td>
+<td class="gt_row gt_right gt_striped">381</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-11_#FueraZamora.xlsx</td>
+<td class="gt_row gt_right">449</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-11_#SinPandemiaYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">129</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-12_#Dia58.xlsx</td>
+<td class="gt_row gt_right">385</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-13_#Dia59.xlsx</td>
+<td class="gt_row gt_right gt_striped">368</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-13_#EnCuarentenaElAmorEs.xlsx</td>
+<td class="gt_row gt_right">115</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-13_#FueraMolinelli.xlsx</td>
+<td class="gt_row gt_right gt_striped">255</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-14_#BonoRural.xlsx</td>
+<td class="gt_row gt_right">468</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-14_#Dia60.xlsx</td>
+<td class="gt_row gt_right gt_striped">464</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-14_#NiEnCuarentena.xlsx</td>
+<td class="gt_row gt_right">122</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-14_#TeCuidoPeru.xlsx</td>
+<td class="gt_row gt_right gt_striped">106</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-15_#Dia61.xlsx</td>
+<td class="gt_row gt_right">426</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-15_#NoSalgoCuando.xlsx</td>
+<td class="gt_row gt_right gt_striped">41</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-15_#SiFueraUnVirusYo.xlsx</td>
+<td class="gt_row gt_right">108</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-16_#Dia62.xlsx</td>
+<td class="gt_row gt_right gt_striped">326</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-16_#IdiotasEnCuarentena.xlsx</td>
+<td class="gt_row gt_right">135</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-17_#Dia63.xlsx</td>
+<td class="gt_row gt_right gt_striped">274</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-17_#MafiaMoqueguana.xlsx</td>
+<td class="gt_row gt_right">179</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-18_#Dia64.xlsx</td>
+<td class="gt_row gt_right gt_striped">425</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-19_#D+≠a65.xlsx</td>
+<td class="gt_row gt_right">491</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-19_#Extra+›oTodoMenos.xlsx</td>
+<td class="gt_row gt_right gt_striped">156</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-20_#BonoFamiliarUniversal.xlsx</td>
+<td class="gt_row gt_right">488</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-20_#JuroQueSiSobrevivo.xlsx</td>
+<td class="gt_row gt_right gt_striped">140</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-20_#VizcarraEsElProblema.xlsx</td>
+<td class="gt_row gt_right">507</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-21_#Dia67.xlsx</td>
+<td class="gt_row gt_right gt_striped">347</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-21_#SinBonoYo.xlsx</td>
+<td class="gt_row gt_right">371</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-22_#CuandoAcabeLaCuarentenaYo.xlsx</td>
+<td class="gt_row gt_right gt_striped">97</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-22_#CuandoTeVeaDeNuevo.xlsx</td>
+<td class="gt_row gt_right">95</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-22_#floreocomovizcarra.xlsx</td>
+<td class="gt_row gt_right gt_striped">92</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-22_#UnMesM+°sSin.xlsx</td>
+<td class="gt_row gt_right">517</td></tr>
+    <tr><td class="gt_row gt_left gt_striped">Limpio_Hastags 2020-05-23_#Dia69.xlsx</td>
+<td class="gt_row gt_right gt_striped">288</td></tr>
+    <tr><td class="gt_row gt_left">Limpio_Hastags 2020-05-23_#MientoComoPeru21.xlsx</td>
+<td class="gt_row gt_right">13</td></tr>
+    <tr><td class="gt_row gt_left gt_striped" style="font-weight: bold;">Total</td>
+<td class="gt_row gt_right gt_striped" style="font-weight: bold;">34669</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="exportar-data" class="level2">
+<h2 class="anchored" data-anchor-id="exportar-data">Exportar data</h2>
+<div class="cell">
+
+</div>
+<ul>
+<li>El archivo <code>edges.xlsx</code> unificado pesa <strong>8.64MB</strong>.</li>
+<li>El archivo <code>vertices.xlsx</code> unificado pesa <strong>7.95MB</strong>.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copiada");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

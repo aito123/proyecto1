@@ -1,0 +1,17 @@
+project:
+  type: website
+lang: es
+
+website:
+  title: "proyecto1"
+  navbar:
+    background: primary
+    left:
+      - href: index.qmd
+        text: Home
+      - about.qmd
+
+format:
+  html:
+    theme: cosmo
+    toc: true
