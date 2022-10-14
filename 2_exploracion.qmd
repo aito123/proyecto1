@@ -1,0 +1,415 @@
+---
+title: "2. Revisión de la base de datos Hashtags"
+author: "Santiago Sotelo"
+date: 10/12/2022
+execute: 
+  echo: false
+  message: false
+  warning: false
+---
+
+```{r}
+#| include: false
+pacman::p_load(tidyverse, rio, gt, here, janitor, fs)
+here::i_am("2_exploracion.qmd")
+
+```
+
+## Problema
+
+-   Utilizar las métricas que sacó Daniel
+    -   Relacionarlo a las tablas que se pusieron en el ppt del congreso.
+
+-   Se necesita explorar las técnicas de análisis de redes para encontrar relaciones en la data de Twitter.
+    -   Grafos
+
+    -   Métricas
+
+        -   **Betweenness Centrality** (28), es un indicador de la centralidad de la red. Es igual al número de caminos más cortos de todos los vértices a todos los otros que pasan a través de ese nodo. Un nodo con alto betweenness centrality tiene una *gran influencia* en la transferencia de los nodos a través de la red, asumiendo que cada nodo transfiere siguiendo los caminos más cortos
+
+        -   **Closeness Centrality** (2), centralidad de intermediación, Son nodos que a pesar de tener pocas conexiones, sus arcos permiten llegar a todos los puntos de la red más rápidamente que desde cualquier otro punto. *Representan una excelente posición para monitorear el flujo de información de toda la red.*
+
+        -   **Coeficiente de Clustering** (29), es el coeficiente de agrupamiento de un vértice en un grafo cuantifica qué tanto está de agrupado( o  interconectado) con sus vecinos. Se puede decir que si el vértice está agrupado como un clique (grafo completo) su valor es máximo, mientras que un valor pequeño indica un vértice poco agrupado en la red. También se le puede denominar como transitividad
+
+        -   **Degree** (7), Es el grado de un vértice v es el número de líneas que tienen a v como nodo de uno de sus extremos
+
+        -   **Distancia**, indica entre dos actores cómo de cerca uno está de otro
+
+        -   **Eigenvector centrality**, \"*centralidad del vector\",* Es una medida de la influencia de un nodo en una red. Asigna puntuaciones relativas a todos los nodos de la red basada en el concepto de que las conexiones a los nodos de alta puntuación contribuyen más a la puntuación del nodo en cuestión de la igualdad de las conexiones a los nodos de baja puntuación
+
+        -   **Densidad del grafo** (5.2), es el número total de relaciones existentes dividido por el total posible de la red (en densidad).
+
+        -   **PageRank** (31), asigna de forma numérica la relevancia de los documentos indexados por un motor de búsqueda.
+
+        -   **WordPair**, pares de palabras com osi fueran Vertex 1 y Vertex 2, y a partir de ello un Count. Necesario para realizar una red semántica (de palabras).
+
+## Objetivo
+
+-   Realizar las técnicas disponibles en R que responden a la pregunta de investigación: *"El uso de Twitter durante la cuarentena del COVID-19: Entre la confrontación política y la resiliencia ciudadana"*
+    -   Hipótesis: la necesidad de expresión se trasladó a Twitter dado que habían restricciones de movilidad en pandemia.
+
+        -   En redes sociales hubo un movimiento tanto de apoyo mutuo-resiliencia como de discusión y erupción política.
+
+```{r}
+edges<- import("data/edges.xlsx") %>%
+  select(-c(ur_ls_in_tweet, domains_in_tweet, relationship_date_utc, tweet_date_utc, latitude, longitude, )) %>%  # borrar variables innecesarias
+  relocate(tipo, .after = source)
+
+hashtags<- import("data/hashtags.xlsx") %>% 
+  mutate(
+    across(
+      c(average_geodesic_distance,
+      graph_density,
+      average_betweenness_centrality,
+      average_closeness_centrality,
+      average_eigenvector_centrality),
+      ~as.numeric(str_replace(., ",", ".")) #cambiar las comas por puntos y luego a numérica
+    ),
+    cuartiles_de_sentimiento_polaridad = ordered(as.factor(cuartiles_de_sentimiento_polaridad), 
+                                                 levels = c("Muy Negativo", "Negativo", "Poco Negativo", 
+                                                            "Neutro", "Poco Positivo", "Positivo", "Muy Positivo"))
+  )
+
+vertices<- import("data/vertices.xlsx") %>% 
+  select(-c(x, y, custom_menu_item_text, web))
+
+```
+
+```{r}
+#0----
+graf0<- 
+  hashtags %>%
+  ggplot(aes(average_geodesic_distance, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_geodesic_distance > 7 | sentimiento_general_percent_percent > 28 | sentimiento_general_percent_percent < -40),
+    aes(label = hashtag),
+    size = 2,
+    vjust="inward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Average geodesic distance") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+#00----
+graf00<- 
+  hashtags %>%
+  filter(graph_density < 0.03) %>%
+  ggplot(aes(graph_density, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(graph_density > 0.018 | sentimiento_general_percent_percent > 28 | sentimiento_general_percent_percent < -40),
+    aes(label = hashtag),
+    size = 2,
+    vjust="inward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Graph density") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+graf00_out<- 
+  hashtags %>% 
+  ggplot(aes(graph_density, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(graph_density > 0.03),
+    aes(label = hashtag),
+    size = 2,
+    vjust="inward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Graph density") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+#1----
+graf1<- 
+  hashtags %>% 
+  filter(average_betweenness_centrality < 800) %>% 
+  ggplot(aes(average_betweenness_centrality, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_betweenness_centrality > 600 | sentimiento_general_percent_percent > 28 | sentimiento_general_percent_percent < -40), 
+    aes(label = hashtag), 
+    size = 2,
+    vjust="inward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Average betweeness centrality") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+graf1_out<-
+  hashtags %>% 
+  # filter(average_betweenness_centrality < 2000) %>% 
+  ggplot(aes(average_betweenness_centrality, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_betweenness_centrality > 800), 
+    aes(label = hashtag), 
+    size = 2,
+    vjust="inward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Average betweeness centrality") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+#2-----
+graf2<- 
+  hashtags %>% 
+  ggplot(aes(average_closeness_centrality, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_closeness_centrality > 0.3 | sentimiento_general_percent_percent > 28 | sentimiento_general_percent_percent < -40), 
+    aes(label = hashtag), 
+    size = 2,
+    vjust="outward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Average closeness centrality") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+#3----
+
+graf3<- 
+  hashtags %>% 
+  filter(average_eigenvector_centrality < 0.12) %>% 
+  ggplot(aes(average_eigenvector_centrality, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_eigenvector_centrality > 0.09 | sentimiento_general_percent_percent > 28 | sentimiento_general_percent_percent < -40), 
+    aes(label = hashtag), 
+    size = 2,
+    vjust="outward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Average eigenvector centrality") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+graf3_out<- 
+  hashtags %>% 
+  ggplot(aes(average_eigenvector_centrality, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_eigenvector_centrality > 0.12), 
+    aes(label = hashtag), 
+    size = 2,
+    vjust="outward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Average eigenvector centrality") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+```
+
+## Resumen
+
+-   Average geodesic distance
+-   Graph density
+-   Average betweeness centrality
+-   Average closeness centrality
+-   Average eigenvector centrality
+
+
+Acá hacer un layout de todos los gráficos
+
+## Average geodesic distance
+
+```{r}
+#| label: fig-graf0
+#| fig-cap: 
+#| - "Average geodesic distance (X) vs General sentiment percentage (Y)"
+#| layout-nrow: 1
+#| dpi: 600
+#| fig-width: 7
+#| fig-asp: 0.8
+
+graf0
+
+```
+
+```{r}
+#| column: screen-inset-right
+
+lm(sentimiento_general_percent_percent ~ average_geodesic_distance, data = hashtags) %>% 
+  summary()
+
+```
+
+## Graph density
+
+```{r}
+#| label: fig-graf00
+#| fig-cap: 
+#| - "Graph density (X) vs General sentiment percentage (Y)"
+#| - "Graph density (X) vs General sentiment percentage (Y) with outliers"
+#| layout-nrow: 1
+#| column: screen-inset
+#| dpi: 600
+
+graf00
+
+graf00_out
+
+```
+
+```{r}
+#| column: screen-inset-right
+
+lm(sentimiento_general_percent_percent ~ graph_density, data = hashtags) %>% 
+  summary()
+
+```
+
+## Average betweeness centrality
+
+```{r}
+#| label: fig-graf1
+#| fig-cap: 
+#| - "Average betweeness centrality (X) vs General sentiment percentage (Y)"
+#| - "Average betweeness centrality (X) vs General sentiment percentage (Y) with outliers"
+#| layout-nrow: 1
+#| column: screen-inset
+#| dpi: 600
+
+graf1
+
+graf1_out
+
+```
+
+```{r}
+#| column: screen-inset-right
+
+lm(sentimiento_general_percent_percent ~ average_betweenness_centrality, data = hashtags %>% filter(average_betweenness_centrality < 800)) %>% 
+  summary()
+
+# summ(lmSent)
+```
+
+## Average closeness centrality
+
+```{r}
+#| label: fig-graf2
+#| fig-cap: 
+#| - "Average closeness centrality (X) vs General sentiment percentage (Y)"
+#| layout-nrow: 1
+#| column: body
+#| dpi: 600
+#| fig-width: 7
+#| fig-asp: 0.8
+
+graf2 
+
+```
+
+```{r}
+#| column: screen-inset-right
+
+lm(sentimiento_general_percent_percent ~ average_closeness_centrality, data = hashtags) %>% 
+  summary()
+
+```
+
+## Average eigenvector centrality
+
+```{r}
+#| label: fig-graf3
+#| fig-cap: 
+#| - "Average eigenvector centrality (X) vs General sentiment percentage (Y)"
+#| - "Average eigenvector centrality (X) vs General sentiment percentage (Y) with outliers"
+#| layout-nrow: 1
+#| column: screen-inset
+#| dpi: 600
+
+graf3
+
+graf3_out
+
+```
+
+```{r}
+#| column: screen-inset-right
+
+lm(sentimiento_general_percent_percent ~ average_eigenvector_centrality, data = hashtags %>% filter(average_eigenvector_centrality < 0.12)) %>% 
+  summary()
+
+```
+
+
+
+
+```{r}
+#| label: notas
+#| eval: false
+
+hashtags %>% 
+  select(average_betweenness_centrality, cuartiles_de_sentimiento_polaridad) %>% 
+  GGally::ggpairs(aes(color = cuartiles_de_sentimiento_polaridad),
+          columns = c("average_betweenness_centrality"))
+
+hashtags %>% 
+  select(average_betweenness_centrality, cuartiles_de_sentimiento_polaridad, sentimiento_general_percent_percent) %>% 
+  GGally::ggpairs(aes(color = cuartiles_de_sentimiento_polaridad),
+          columns = c("average_betweenness_centrality",
+                      "sentimiento_general_percent_percent"
+                      ))
+
+sentimiento_general_percent_percent
+
+```
+

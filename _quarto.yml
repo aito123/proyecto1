@@ -14,6 +14,7 @@ website:
       - text: "Menu"
         menu:
           - 1_limpiando_data.qmd
+          - 2_exploracion.qmd
 
 format:
   html:
