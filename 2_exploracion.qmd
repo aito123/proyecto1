@@ -408,3 +408,85 @@ hashtags %>%
 sentimiento_general_percent_percent
 
 ```
+
+## Cuadrantes estandarizados
+
+Una posibilidad es estandarizar las variables de centralidad y densidad para ver cómo se relacionan estas variables. Sin embargo, el problema es que se tienen alrededor de 4-5 hashtags que tienen valores muy diferentes al promedio (outliers) y sesgan la estandarización (skewness). Se debería tomar alguna decisión acerca de estos hashtags.
+
+-   Average geodistic distance
+-   Graph density
+-   Average betweeness centrality
+-   Average closeness centrality
+-   Average eigenvector centrality
+
+### Average betweeness centrality vs. average closeness centrality
+
+```{r}
+#| label: fig-estandar1
+#| fig-cap: X = average betweeness centrality, Y = average closeness centrality
+#| fig-subcap: 
+#| - Sin estandarización
+#| - Con estandarización
+#| layout-nrow: 1
+#| column: screen-inset
+#| dpi: 600
+
+hashtags1<-
+  hashtags %>% 
+  mutate(
+    across(c(average_geodesic_distance, graph_density, average_betweenness_centrality, average_closeness_centrality, average_eigenvector_centrality), .fns = list(scale = scale), .names = "{.col}_{.fn}")
+  )
+
+# sin estandar
+hashtags %>%
+  ggplot(aes(average_betweenness_centrality, average_closeness_centrality)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_betweenness_centrality > 2500 | average_closeness_centrality > 0.22),
+    aes(label = hashtag),
+    size = 2,
+    vjust="inward",hjust="inward",
+    nudge_x = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ),
+    nudge_y = c(0.005, 0, 0.005, 0.005, 0.005, 0.01, 0.01, 0.01, 0.015, 0 ,0 )
+  ) +
+  ylim(0, NA) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  ggpubr::theme_pubr() +
+  xlab("Average betweeness centrality") +
+  ylab("Average closeness centrality") +
+  theme(
+    legend.position = "bottom"
+  ) +
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+
+
+
+# con estandar
+hashtags1 %>%
+  ggplot(aes(average_betweenness_centrality_scale, average_closeness_centrality_scale)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_betweenness_centrality_scale > 2.5 | average_closeness_centrality_scale > 2 | average_closeness_centrality_scale < -1),
+    aes(label = hashtag),
+    size = 2,
+    vjust="inward",hjust="inward",
+    nudge_x = c(0, 0.2, 0, 0, 0, 0.7, 1.3, 0, 0, 0 ,0 ),
+    nudge_y = c(0, 0.2, 0, 0, 0, -0.2, -0.2, 0,-0.2, -0.15 ,-0.3 )
+  ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  ggpubr::theme_pubr() +
+  xlab("Average betweeness centrality scale") +
+  ylab("Average closeness centrality scale") +
+  theme(
+    legend.position = "bottom"
+  ) +
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+
+
+
+```
+

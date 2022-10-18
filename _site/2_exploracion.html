@@ -110,6 +110,10 @@ ul.task-list{list-style: none;}
   <li><a href="#average-betweeness-centrality" id="toc-average-betweeness-centrality" class="nav-link" data-scroll-target="#average-betweeness-centrality">Average betweeness centrality</a></li>
   <li><a href="#average-closeness-centrality" id="toc-average-closeness-centrality" class="nav-link" data-scroll-target="#average-closeness-centrality">Average closeness centrality</a></li>
   <li><a href="#average-eigenvector-centrality" id="toc-average-eigenvector-centrality" class="nav-link" data-scroll-target="#average-eigenvector-centrality">Average eigenvector centrality</a></li>
+  <li><a href="#cuadrantes-estandarizados" id="toc-cuadrantes-estandarizados" class="nav-link" data-scroll-target="#cuadrantes-estandarizados">Cuadrantes estandarizados</a>
+  <ul class="collapse">
+  <li><a href="#average-betweeness-centrality-vs.-average-closeness-centrality" id="toc-average-betweeness-centrality-vs.-average-closeness-centrality" class="nav-link" data-scroll-target="#average-betweeness-centrality-vs.-average-closeness-centrality">Average betweeness centrality vs.&nbsp;average closeness centrality</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -405,8 +409,45 @@ F-statistic: 0.2669 on 1 and 120 DF,  p-value: 0.6064</code></pre>
 <div class="cell">
 
 </div>
+</section>
+<section id="cuadrantes-estandarizados" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="cuadrantes-estandarizados">Cuadrantes estandarizados</h2>
+<p>Una posibilidad es estandarizar las variables de centralidad y densidad para ver cómo se relacionan estas variables. Sin embargo, el problema es que se tienen alrededor de 4-5 hashtags que tienen valores muy diferentes al promedio (outliers) y sesgan la estandarización (skewness). Se debería tomar alguna decisión acerca de estos hashtags.</p>
+<ul>
+<li>Average geodistic distance</li>
+<li>Graph density</li>
+<li>Average betweeness centrality</li>
+<li>Average closeness centrality</li>
+<li>Average eigenvector centrality</li>
+</ul>
+<section id="average-betweeness-centrality-vs.-average-closeness-centrality" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="average-betweeness-centrality-vs.-average-closeness-centrality">Average betweeness centrality vs.&nbsp;average closeness centrality</h3>
+<div id="fig-estandar1" class="cell column-screen-inset quarto-layout-panel">
+<figure class="figure">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-estandar1-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="2_exploracion_files/figure-html/fig-estandar1-1.png" class="img-fluid figure-img" data-ref-parent="fig-estandar1" width="4200"></p>
+<p></p><figcaption class="figure-caption">(a) Sin estandarización</figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-estandar1-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="2_exploracion_files/figure-html/fig-estandar1-2.png" class="img-fluid figure-img" data-ref-parent="fig-estandar1" width="4200"></p>
+<p></p><figcaption class="figure-caption">(b) Con estandarización</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figura 9: X = average betweeness centrality, Y = average closeness centrality</figcaption><p></p>
+</figure>
+</div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
