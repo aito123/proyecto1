@@ -103,9 +103,8 @@ ul.task-list{list-style: none;}
     <h2 id="toc-title">En esta página</h2>
    
   <ul>
-  <li><a href="#problema" id="toc-problema" class="nav-link active" data-scroll-target="#problema">Problema</a></li>
-  <li><a href="#objetivo" id="toc-objetivo" class="nav-link" data-scroll-target="#objetivo">Objetivo</a></li>
-  <li><a href="#resumen" id="toc-resumen" class="nav-link" data-scroll-target="#resumen">Resumen</a></li>
+  <li><a href="#objetivo" id="toc-objetivo" class="nav-link active" data-scroll-target="#objetivo">Objetivo</a></li>
+  <li><a href="#cómo-interpretar-una-regresión-lineal" id="toc-cómo-interpretar-una-regresión-lineal" class="nav-link" data-scroll-target="#cómo-interpretar-una-regresión-lineal">¿Cómo interpretar una regresión lineal?</a></li>
   <li><a href="#average-geodesic-distance" id="toc-average-geodesic-distance" class="nav-link" data-scroll-target="#average-geodesic-distance">Average geodesic distance</a></li>
   <li><a href="#graph-density" id="toc-graph-density" class="nav-link" data-scroll-target="#graph-density">Graph density</a></li>
   <li><a href="#average-betweeness-centrality" id="toc-average-betweeness-centrality" class="nav-link" data-scroll-target="#average-betweeness-centrality">Average betweeness centrality</a></li>
@@ -145,37 +144,12 @@ ul.task-list{list-style: none;}
 
 </header>
 
-<section id="problema" class="level2">
-<h2 class="anchored" data-anchor-id="problema">Problema</h2>
-<ul>
-<li>Utilizar las métricas que sacó Daniel
-<ul>
-<li>Relacionarlo a las tablas que se pusieron en el ppt del congreso.</li>
-</ul></li>
-<li>Se necesita explorar las técnicas de análisis de redes para encontrar relaciones en la data de Twitter.
-<ul>
-<li><p>Grafos</p></li>
-<li><p>Métricas</p>
-<ul>
-<li><p><strong>Betweenness Centrality</strong> (28), es un indicador de la centralidad de la red. Es igual al número de caminos más cortos de todos los vértices a todos los otros que pasan a través de ese nodo. Un nodo con alto betweenness centrality tiene una <em>gran influencia</em> en la transferencia de los nodos a través de la red, asumiendo que cada nodo transfiere siguiendo los caminos más cortos</p></li>
-<li><p><strong>Closeness Centrality</strong> (2), centralidad de intermediación, Son nodos que a pesar de tener pocas conexiones, sus arcos permiten llegar a todos los puntos de la red más rápidamente que desde cualquier otro punto. <em>Representan una excelente posición para monitorear el flujo de información de toda la red.</em></p></li>
-<li><p><strong>Coeficiente de Clustering</strong> (29), es el coeficiente de agrupamiento de un vértice en un grafo cuantifica qué tanto está de agrupado( o&nbsp; interconectado) con sus vecinos. Se puede decir que si el vértice está agrupado como un clique (grafo completo) su valor es máximo, mientras que un valor pequeño indica un vértice poco agrupado en la red. También se le puede denominar como transitividad</p></li>
-<li><p><strong>Degree</strong> (7), Es el grado de un vértice v es el número de líneas que tienen a v como nodo de uno de sus extremos</p></li>
-<li><p><strong>Distancia</strong>, indica entre dos actores cómo de cerca uno está de otro</p></li>
-<li><p><strong>Eigenvector centrality</strong>, "<em>centralidad del vector",</em> Es una medida de la influencia de un nodo en una red. Asigna puntuaciones relativas a todos los nodos de la red basada en el concepto de que las conexiones a los nodos de alta puntuación contribuyen más a la puntuación del nodo en cuestión de la igualdad de las conexiones a los nodos de baja puntuación</p></li>
-<li><p><strong>Densidad del grafo</strong> (5.2), es el número total de relaciones existentes dividido por el total posible de la red (en densidad).</p></li>
-<li><p><strong>PageRank</strong> (31), asigna de forma numérica la relevancia de los documentos indexados por un motor de búsqueda.</p></li>
-<li><p><strong>WordPair</strong>, pares de palabras com osi fueran Vertex 1 y Vertex 2, y a partir de ello un Count. Necesario para realizar una red semántica (de palabras).</p></li>
-</ul></li>
-</ul></li>
-</ul>
-</section>
 <section id="objetivo" class="level2">
 <h2 class="anchored" data-anchor-id="objetivo">Objetivo</h2>
 <ul>
 <li>Realizar las técnicas disponibles en R que responden a la pregunta de investigación: <em>“El uso de Twitter durante la cuarentena del COVID-19: Entre la confrontación política y la resiliencia ciudadana”</em>
 <ul>
-<li><p>Hipótesis: la necesidad de expresión se trasladó a Twitter dado que habían restricciones de movilidad en pandemia.</p>
+<li>Hipótesis: la necesidad de expresión se trasladó a Twitter dado que habían restricciones de movilidad en pandemia.
 <ul>
 <li>En redes sociales hubo un movimiento tanto de apoyo mutuo-resiliencia como de discusión y erupción política.</li>
 </ul></li>
@@ -187,20 +161,18 @@ ul.task-list{list-style: none;}
 <div class="cell">
 
 </div>
-</section>
-<section id="resumen" class="level2">
-<h2 class="anchored" data-anchor-id="resumen">Resumen</h2>
-<ul>
-<li>Average geodesic distance</li>
-<li>Graph density</li>
-<li>Average betweeness centrality</li>
-<li>Average closeness centrality</li>
-<li>Average eigenvector centrality</li>
-</ul>
 <p>Acá hacer un layout de todos los gráficos</p>
+</section>
+<section id="cómo-interpretar-una-regresión-lineal" class="level2">
+<h2 class="anchored" data-anchor-id="cómo-interpretar-una-regresión-lineal">¿Cómo interpretar una regresión lineal?</h2>
+<ul>
+<li><p>Constatar que el <em>p-value</em> es menor o igual a 0.05 (*).</p></li>
+<li><p>Revisar que el R² ajustado se encuentre cerca a 1. Mientras más cerca a uno, mayor será la variabilidad de la data.</p></li>
+</ul>
 </section>
 <section id="average-geodesic-distance" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="average-geodesic-distance">Average geodesic distance</h2>
+<p><strong><em>Average geodesic distance</em></strong> <strong>o promedio de la distancia geodésica</strong>: es el promedio del número de interacciones mínimas que un usuario tendrá que realizar para estar en contacto con cualquier otro usuario que también haya utilizado el hashtag.</p>
 <div class="cell quarto-layout-panel" data-fig.asp="0.8">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
@@ -234,9 +206,14 @@ Multiple R-squared:  6.179e-05, Adjusted R-squared:  -0.008002
 F-statistic: 0.007662 on 1 and 124 DF,  p-value: 0.9304</code></pre>
 </div>
 </div>
+<ul>
+<li><p><em>P-value</em> no es significativo.</p></li>
+<li><p>R² ajustado es muy bajo.</p></li>
+</ul>
 </section>
 <section id="graph-density" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="graph-density">Graph density</h2>
+<p><strong><em>Graph density</em></strong> <strong>o densidad del gráfico</strong>: Es el número de interacciones reales que tienen los usuarios que utilizaron el Hashtag en relación al número de interacciones que ocurrirían si todos interactuaran entre sí. Se trata de una medida de cohesión entre los usuarios. A mayor densidad, habrá mayor calidad de vínculos y mayor flujo de información.</p>
 <div class="cell column-screen-inset quarto-layout-panel">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
@@ -278,9 +255,14 @@ Multiple R-squared:  0.0009438, Adjusted R-squared:  -0.007113
 F-statistic: 0.1171 on 1 and 124 DF,  p-value: 0.7327</code></pre>
 </div>
 </div>
+<ul>
+<li><p><em>P-value</em> no es significativo.</p></li>
+<li><p>R² ajustado es muy bajo.</p></li>
+</ul>
 </section>
 <section id="average-betweeness-centrality" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="average-betweeness-centrality">Average betweeness centrality</h2>
+<p><strong><em>Average betweeness centrality</em></strong> <strong>o promedio de la centralidad de intermediación</strong>: La capacidad de los usuarios que utilizaron el hashtag para servir como puente entre un usuario que busca información y otro capaz de ofrecerla. En este caso, el promedio alude entre los usuarios de su poder para controlar el flujo de la información.</p>
 <div class="cell column-screen-inset quarto-layout-panel">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
@@ -323,9 +305,14 @@ Multiple R-squared:  0.01443,   Adjusted R-squared:  0.006286
 F-statistic: 1.772 on 1 and 121 DF,  p-value: 0.1857</code></pre>
 </div>
 </div>
+<ul>
+<li><p><em>P-value</em> no es significativo.</p></li>
+<li><p>R² ajustado es muy bajo.</p></li>
+</ul>
 </section>
 <section id="average-closeness-centrality" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="average-closeness-centrality">Average closeness centrality</h2>
+<p><strong><em>Average closeness centrality</em></strong> <strong>o promedio de la centralidad de la cercanía</strong>: El nivel de implicación de los usuarios en torno al hashtag. También derivará en el tiempo que le toma a un usuario acceder a la información que se encuentra circulando. A mayor cercanía, mayor nivel de acceso a la información y mayor poder de influencia en la red.</p>
 <div class="cell column-body quarto-layout-panel" data-fig.asp="0.8">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
@@ -361,9 +348,14 @@ Multiple R-squared:  0.009642,  Adjusted R-squared:  0.001655
 F-statistic: 1.207 on 1 and 124 DF,  p-value: 0.274</code></pre>
 </div>
 </div>
+<ul>
+<li><p><em>P-value</em> no es significativo.</p></li>
+<li><p>R² ajustado es muy bajo.</p></li>
+</ul>
 </section>
 <section id="average-eigenvector-centrality" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="average-eigenvector-centrality">Average eigenvector centrality</h2>
+<p><strong><em>Average eigenvector centrality</em></strong> <strong>o promedio de la centralidad eigenvectorial</strong>: El nivel en el que un usuario interactúa con otros usuarios que tienen buenas conexiones con la red del hashtag. En este sentido, va un paso más allá que en la medida de los grados.</p>
 <div class="cell column-screen-inset quarto-layout-panel">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
@@ -406,6 +398,10 @@ Multiple R-squared:  0.002219,  Adjusted R-squared:  -0.006096
 F-statistic: 0.2669 on 1 and 120 DF,  p-value: 0.6064</code></pre>
 </div>
 </div>
+<ul>
+<li><p><em>P-value</em> no es significativo.</p></li>
+<li><p>R² ajustado es muy bajo.</p></li>
+</ul>
 <div class="cell">
 
 </div>
