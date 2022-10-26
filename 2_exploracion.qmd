@@ -10,7 +10,8 @@ execute:
 
 ```{r}
 #| include: false
-pacman::p_load(tidyverse, rio, gt, here, janitor, fs)
+#| label: packages
+pacman::p_load(tidyverse, rio, gt, here, janitor, fs, tidymodels, corrr)
 here::i_am("2_exploracion.qmd")
 
 ```
@@ -228,7 +229,27 @@ graf3_out<-
 
 ```
 
-Acá hacer un layout de todos los gráficos
+<!-- Acá hacer un layout de todos los gráficos -->
+
+```{r}
+#| label: fig-corrr
+#| fig-cap: Matriz de correlación
+
+hashtags2<-
+  hashtags %>% 
+  select(where(is.numeric), -c(semana_de_recoleccion))
+
+hash_cor<-
+  hashtags2 %>% 
+  corrr::correlate() %>% 
+  # corrr::rearrange() %>% 
+  corrr::shave()
+
+rplot(hash_cor) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
 
 ## ¿Cómo interpretar una regresión lineal?
 
@@ -487,6 +508,56 @@ hashtags1 %>%
 
 
 
+
+```
+
+```{r}
+#| eval: false
+?scale
+
+data<-
+  data.frame(
+    hombres = c(1200, 34567, 3456, 12, 3456, 0985, 1211),
+    mujeres = c(1200, 34567, 3456, 12, 3456, 0985, 1211)
+  )
+
+rnorm(n=500) %>% 
+  as.data.frame() %>% 
+  rename(var=1) %>% 
+  ggplot(aes(x=var)) +
+  geom_density()
+
+
+```
+
+```{r}
+#| eval: false
+
+# averiguar método de mínimos y máximos
+library(caret)
+
+train = data.frame(a = 1:3, b = 10:12)
+test = data.frame(a = 1:6, b = 7:12)
+
+pp = preProcess(train, method = "range")
+
+
+predict(pp, train)
+
+#     a   b
+# 1 0.0 0.0
+# 2 0.5 0.5
+# 3 1.0 1.0
+
+predict(pp, test)
+
+#     a    b
+# 1 0.0 -1.5
+# 2 0.5 -1.0
+# 3 1.0 -0.5
+# 4 1.5  0.0
+# 5 2.0  0.5
+# 6 2.5  1.0
 
 ```
 
