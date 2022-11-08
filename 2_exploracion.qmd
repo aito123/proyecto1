@@ -238,13 +238,15 @@ Se realiza una explicación de la distribución de cada variable a fin de identi
 ```{r}
 #| label: fig-geodesic
 #| fig-cap: Average geodesic distance por cuartiles de sentimiento
+#| fig-width: 10
+#| fig-height: 6
 
 hashtags %>% 
   ggplot(aes(x = average_geodesic_distance, y = cuartiles_de_sentimiento_polaridad)) +
   geom_boxplot(fill = "grey92", outlier.shape = NA) + #ocultar outliers pero considerarlos en ecuación
   geom_text(
-    data = . %>% filter(average_geodesic_distance < 1.5 | average_geodesic_distance > 6),
-    aes(label = hashtag, vjust = "inward", hjust = "inward"),
+    data = . %>% filter(average_geodesic_distance < 1.5 | average_geodesic_distance > 5),
+    aes(label = hashtag),
     size = 2,
     angle = 45
     ) +
@@ -265,6 +267,112 @@ hashtags %>%
 
 ```
 
+```{r}
+#| label: fig-betweenness
+#| fig-cap: Average betweenness centrality por cuartiles de sentimiento
+#| fig-width: 10
+#| fig-height: 6
+
+hashtags %>% 
+  ggplot(aes(x = average_betweenness_centrality, y = cuartiles_de_sentimiento_polaridad)) +
+  geom_boxplot(fill = "grey92", outlier.shape = NA) + #ocultar outliers pero considerarlos en ecuación
+  geom_text(
+    data = . %>% filter(average_betweenness_centrality > 1000),
+    aes(label = hashtag),
+    size = 2,
+    angle = 45
+    ) +
+  geom_point(
+    aes(color = cuartiles_de_sentimiento_polaridad),
+    ## draw bigger points
+    size = 2,
+    ## add some transparency
+    alpha = .3,
+    ## add some jittering
+    position = position_jitter(
+      ## control randomness and range of jitter
+      seed = 1, width = .01, height = .2
+    )
+  ) +
+  theme_pubclean() +
+  theme(legend.position = "none")
+
+```
+
+```{r}
+#| label: fig-closeness
+#| fig-cap: Average closeness centrality por cuartiles de sentimiento
+#| fig-width: 10
+#| fig-height: 6
+
+hashtags %>% 
+  ggplot(aes(x = average_closeness_centrality, y = cuartiles_de_sentimiento_polaridad)) +
+  geom_boxplot(fill = "grey92", outlier.shape = NA) + #ocultar outliers pero considerarlos en ecuación
+  geom_text(
+    data = . %>% filter(average_closeness_centrality < 0.01 | average_closeness_centrality > 0.2),
+    aes(label = hashtag),
+    size = 2,
+    angle = 45
+    ) +
+  geom_point(
+    aes(color = cuartiles_de_sentimiento_polaridad),
+    ## draw bigger points
+    size = 2,
+    ## add some transparency
+    alpha = .3,
+    ## add some jittering
+    position = position_jitter(
+      ## control randomness and range of jitter
+      seed = 1, width = .01, height = .2
+    )
+  ) +
+  theme_pubclean() +
+  theme(legend.position = "none")
+
+```
+
+```{r}
+#| label: fig-eigenvector
+#| fig-cap: Average eigenvector centrality por cuartiles de sentimiento
+#| fig-width: 10
+#| fig-height: 6
+
+hashtags %>% 
+  mutate(
+    vjust = case_when(
+      hashtag %in% "CuarentenaPeru" ~ -2,
+      hashtag %in% "YoApoyoAlCapitanCueva" ~ -1.5,
+      hashtag %in% "Dia37" ~ +2,
+      TRUE ~ 0.5
+    ),
+    hjust = case_when(
+      TRUE ~ 0.5
+    )
+  ) %>% 
+  ggplot(aes(x = average_eigenvector_centrality, y = cuartiles_de_sentimiento_polaridad)) +
+  geom_boxplot(fill = "grey92", outlier.shape = NA) + #ocultar outliers pero considerarlos en ecuación
+  geom_text(
+    data = . %>% filter(average_eigenvector_centrality < 0.01 | average_eigenvector_centrality > 0.12),
+    aes(label = hashtag, vjust = vjust, hjust = hjust),
+    size = 2,
+    angle = 45
+    ) +
+  geom_point(
+    aes(color = cuartiles_de_sentimiento_polaridad),
+    ## draw bigger points
+    size = 2,
+    ## add some transparency
+    alpha = .3,
+    ## add some jittering
+    position = position_jitter(
+      ## control randomness and range of jitter
+      seed = 1, width = .01, height = .2
+    )
+  ) +
+  theme_pubclean() +
+  theme(legend.position = "none")
+
+```
 
 ## Hashtags más populares
 
@@ -364,6 +472,8 @@ rplot(hash_cor2, print_cor = TRUE) + #, .order = "alphabet"
 ```
 
 ```{r}
+#| label: fig-cor1
+#| fig-cap: Graph density & average eigenvector centrality
 
 hashtags %>%
   # mutate(
@@ -395,8 +505,10 @@ hashtags %>%
     legend.position = "bottom"
   ) +
   guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+```
 
-# summary(lm(graph_density ~ average_eigenvector_centrality, data = hashtags))
+```{r}
+summary(lm(graph_density ~ average_eigenvector_centrality, data = hashtags))
 
 ```
 

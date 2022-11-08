@@ -177,8 +177,38 @@ ul.task-list{list-style: none;}
 <div class="cell-output-display">
 <div id="fig-geodesic" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
-<p><img src="2_exploracion_files/figure-html/fig-geodesic-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="2_exploracion_files/figure-html/fig-geodesic-1.png" class="img-fluid figure-img" width="960"></p>
 <p></p><figcaption class="figure-caption">Figura 1: Average geodesic distance por cuartiles de sentimiento</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-betweenness" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="2_exploracion_files/figure-html/fig-betweenness-1.png" class="img-fluid figure-img" width="960"></p>
+<p></p><figcaption class="figure-caption">Figura 2: Average betweenness centrality por cuartiles de sentimiento</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-closeness" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="2_exploracion_files/figure-html/fig-closeness-1.png" class="img-fluid figure-img" width="960"></p>
+<p></p><figcaption class="figure-caption">Figura 3: Average closeness centrality por cuartiles de sentimiento</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-eigenvector" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="2_exploracion_files/figure-html/fig-eigenvector-1.png" class="img-fluid figure-img" width="960"></p>
+<p></p><figcaption class="figure-caption">Figura 4: Average eigenvector centrality por cuartiles de sentimiento</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -192,7 +222,7 @@ ul.task-list{list-style: none;}
 <div id="fig-popular" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="2_exploracion_files/figure-html/fig-popular-1.png" class="img-fluid figure-img" width="672"></p>
-<p></p><figcaption class="figure-caption">Figura 2: Tweets más populares considerando el número de usuarios e interacciones entre ellos.</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figura 5: Tweets más populares considerando el número de usuarios e interacciones entre ellos.</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -242,25 +272,53 @@ ul.task-list{list-style: none;}
 <div id="fig-corrr" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="2_exploracion_files/figure-html/fig-corrr-1.png" class="img-fluid figure-img" width="672"></p>
-<p></p><figcaption class="figure-caption">Figura 3: Matriz de correlación</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figura 6: Matriz de correlación</figcaption><p></p>
 </figure>
 </div>
 </div>
 </div>
-<p>La <a href="#fig-corrr">Figura&nbsp;3</a> muestra el conjunto de variables siendo correlacionadas unas con otras. Sin embargo, no tiene sentido correlacionar las variables de sentimiento entre sí; ya que, es evidente que a mayor sentimiento positivo menor negativo por lo que en la siguiente matriz se opta por filtrar las variables de sentieminto.</p>
+<p>La <a href="#fig-corrr">Figura&nbsp;6</a> muestra el conjunto de variables siendo correlacionadas unas con otras. Sin embargo, no tiene sentido correlacionar las variables de sentimiento entre sí; ya que, es evidente que a mayor sentimiento positivo menor negativo por lo que en la siguiente matriz se opta por filtrar las variables de sentieminto.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-corrr2" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="2_exploracion_files/figure-html/fig-corrr2-1.png" class="img-fluid figure-img" width="672"></p>
-<p></p><figcaption class="figure-caption">Figura 4: Matriz de correlación sin sentimiento</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figura 7: Matriz de correlación sin sentimiento</figcaption><p></p>
 </figure>
 </div>
 </div>
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="2_exploracion_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+<div id="fig-cor1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="2_exploracion_files/figure-html/fig-cor1-1.png" class="img-fluid figure-img" width="672"></p>
+<p></p><figcaption class="figure-caption">Figura 8: Graph density &amp; average eigenvector centrality</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = graph_density ~ average_eigenvector_centrality, 
+    data = hashtags)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.034919 -0.001221 -0.000774  0.000066  0.022424 
+
+Coefficients:
+                                Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                    0.0004268  0.0006084   0.701    0.484    
+average_eigenvector_centrality 0.1442112  0.0113862  12.665   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.004673 on 124 degrees of freedom
+Multiple R-squared:  0.564, Adjusted R-squared:  0.5605 
+F-statistic: 160.4 on 1 and 124 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </section>
@@ -280,7 +338,7 @@ ul.task-list{list-style: none;}
 <div id="fig-graf0" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="2_exploracion_files/figure-html/fig-graf0-1.png" class="img-fluid figure-img" width="4200"></p>
-<p></p><figcaption class="figure-caption">Figura 5: Average geodesic distance (X) vs General sentiment percentage (Y)</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figura 9: Average geodesic distance (X) vs General sentiment percentage (Y)</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -321,7 +379,7 @@ F-statistic: 0.007662 on 1 and 124 DF,  p-value: 0.9304</code></pre>
 <div id="fig-graf00-1" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="2_exploracion_files/figure-html/fig-graf00-1.png" class="img-fluid figure-img" width="4200"></p>
-<p></p><figcaption class="figure-caption">Figura 6: Graph density (X) vs General sentiment percentage (Y)</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figura 10: Graph density (X) vs General sentiment percentage (Y)</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -329,7 +387,7 @@ F-statistic: 0.007662 on 1 and 124 DF,  p-value: 0.9304</code></pre>
 <div id="fig-graf00-2" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="2_exploracion_files/figure-html/fig-graf00-2.png" class="img-fluid figure-img" width="4200"></p>
-<p></p><figcaption class="figure-caption">Figura 7: Graph density (X) vs General sentiment percentage (Y) with outliers</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figura 11: Graph density (X) vs General sentiment percentage (Y) with outliers</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -370,7 +428,7 @@ F-statistic: 0.1171 on 1 and 124 DF,  p-value: 0.7327</code></pre>
 <div id="fig-graf1-1" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="2_exploracion_files/figure-html/fig-graf1-1.png" class="img-fluid figure-img" width="4200"></p>
-<p></p><figcaption class="figure-caption">Figura 8: Average betweeness centrality (X) vs General sentiment percentage (Y)</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figura 12: Average betweeness centrality (X) vs General sentiment percentage (Y)</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -378,7 +436,7 @@ F-statistic: 0.1171 on 1 and 124 DF,  p-value: 0.7327</code></pre>
 <div id="fig-graf1-2" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="2_exploracion_files/figure-html/fig-graf1-2.png" class="img-fluid figure-img" width="4200"></p>
-<p></p><figcaption class="figure-caption">Figura 9: Average betweeness centrality (X) vs General sentiment percentage (Y) with outliers</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figura 13: Average betweeness centrality (X) vs General sentiment percentage (Y) with outliers</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -420,7 +478,7 @@ F-statistic: 1.772 on 1 and 121 DF,  p-value: 0.1857</code></pre>
 <div id="fig-graf2" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="2_exploracion_files/figure-html/fig-graf2-1.png" class="img-fluid figure-img" width="4200"></p>
-<p></p><figcaption class="figure-caption">Figura 10: Average closeness centrality (X) vs General sentiment percentage (Y)</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figura 14: Average closeness centrality (X) vs General sentiment percentage (Y)</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -463,7 +521,7 @@ F-statistic: 1.207 on 1 and 124 DF,  p-value: 0.274</code></pre>
 <div id="fig-graf3-1" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="2_exploracion_files/figure-html/fig-graf3-1.png" class="img-fluid figure-img" width="4200"></p>
-<p></p><figcaption class="figure-caption">Figura 11: Average eigenvector centrality (X) vs General sentiment percentage (Y)</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figura 15: Average eigenvector centrality (X) vs General sentiment percentage (Y)</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -471,7 +529,7 @@ F-statistic: 1.207 on 1 and 124 DF,  p-value: 0.274</code></pre>
 <div id="fig-graf3-2" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="2_exploracion_files/figure-html/fig-graf3-2.png" class="img-fluid figure-img" width="4200"></p>
-<p></p><figcaption class="figure-caption">Figura 12: Average eigenvector centrality (X) vs General sentiment percentage (Y) with outliers</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figura 16: Average eigenvector centrality (X) vs General sentiment percentage (Y) with outliers</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -539,7 +597,7 @@ F-statistic: 0.2669 on 1 and 120 DF,  p-value: 0.6064</code></pre>
 </div>
 </div>
 </div>
-<p></p><figcaption class="figure-caption">Figura 13: X = average betweeness centrality, Y = average closeness centrality</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figura 17: X = average betweeness centrality, Y = average closeness centrality</figcaption><p></p>
 </figure>
 </div>
 <div class="cell">
