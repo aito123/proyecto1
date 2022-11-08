@@ -11,7 +11,7 @@ execute:
 ```{r}
 #| include: false
 #| label: packages
-pacman::p_load(tidyverse, rio, gt, here, janitor, fs, tidymodels, corrr)
+pacman::p_load(tidyverse, rio, gt, here, janitor, fs, tidymodels, corrr, ggpubr)
 here::i_am("2_exploracion.qmd")
 
 ```
@@ -231,22 +231,172 @@ graf3_out<-
 
 <!-- Acá hacer un layout de todos los gráficos -->
 
+## Exploración de cada variable
+
+Se realiza una explicación de la distribución de cada variable a fin de identificar los hashtags más llamativos.
+
+```{r}
+#| label: fig-geodesic
+#| fig-cap: Average geodesic distance por cuartiles de sentimiento
+
+hashtags %>% 
+  ggplot(aes(x = average_geodesic_distance, y = cuartiles_de_sentimiento_polaridad)) +
+  geom_boxplot(fill = "grey92", outlier.shape = NA) + #ocultar outliers pero considerarlos en ecuación
+  geom_text(
+    data = . %>% filter(average_geodesic_distance < 1.5 | average_geodesic_distance > 6),
+    aes(label = hashtag, vjust = "inward", hjust = "inward"),
+    size = 2,
+    angle = 45
+    ) +
+  geom_point(
+    aes(color = cuartiles_de_sentimiento_polaridad),
+    ## draw bigger points
+    size = 2,
+    ## add some transparency
+    alpha = .3,
+    ## add some jittering
+    position = position_jitter(
+      ## control randomness and range of jitter
+      seed = 1, width = .01, height = .2
+    )
+  ) +
+  theme_pubclean() +
+  theme(legend.position = "none")
+
+```
+
+
+## Hashtags más populares
+
+¿Cuáles son los hashtags más populares? Los hashtags con más interacciones y con más usuarios enganchados son los que suelen destacar en las demás métricas. Se podría realizar una categorización de popularidad de un hashtags mediante una clusterización en tres grupos/clusters con por ejemplo Graph Density.
+
+```{r}
+#| label: fig-popular
+#| fig-cap: Tweets más populares considerando el número de usuarios e interacciones entre ellos.
+
+hashtags %>%
+  mutate(
+    vjust = case_when(
+      hashtag %in% "CuarentenaPeru" ~ 0.5,
+      hashtag %in% "SinReusYo" ~ 1,
+      hashtag %in% "deyapatucovid" ~ 1,
+      hashtag %in% "PaltaEmocionada" ~ 1,
+      TRUE ~ 0
+    ),
+    hjust = case_when(
+      hashtag %in% "CuarentenaPeru" ~ 0,
+      hashtag %in% "SinReusYo" ~ 1,
+      hashtag %in% "deyapatucovid" ~ 1,
+      hashtag %in% "PaltaEmocionada" ~ 1,
+      TRUE ~ 0
+    )
+  ) %>% 
+  ggplot(aes(vertices_usuarios, total_edges_interacciones)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(vertices_usuarios > 550 | total_edges_interacciones > 700),
+    aes(label = hashtag, vjust = vjust, hjust = hjust),
+    size = 2
+    ) +
+  scale_color_brewer(palette = "Dark2") +
+  ggpubr::theme_pubr() +
+  theme(
+    legend.position = "bottom"
+  ) +
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+```
+
+## Correlación entre las variables
+
+De manera previa, recogemos las definiciones asociadas con los indicadores calculados por el NODE XL:
+
+| Indicadores                    | Definiciones                                                                                                                                                                                                                                                                                                       |
+|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Average Geodistic Distance     | El promedio del número de interacciones mínimas que un usuario tendrá que realizar para estar en contacto con cualquier otro usuario que también haya utilizado el Hashtag.                                                                                                                                        |
+| Average betweeness centrality  | La capacidad de los usuarios que utilizaron un hashtag para servir **como puente** entre un usuario que busca información y otro capaz de ofrecerla. En este caso, el promedio alude entre los **usuarios de su poder para controlar el flujo de la información**                                                  |
+| Average closeness centrality   | El **nivel de implicación de los usuarios** en torno al hashtag. También derivará en el tiempo que le toma a un usuario acceder a la información que se encuentra circulando. **A mayor cercanía, mayor nivel de acceso a la información y mayor poder de influencia en la red**                                   |
+| Average eigenvector centrality | Nivel en el que un usuario interactúa con otros usuarios **que tienen buenas conexiones con la red del hashtag**. En este sentido, va un paso más allá que en la medida de los grados.                                                                                                                             |
+| Graph density                  | Es el número de intereacciones reales que tienen los usuarios que utilizaron el Hashtag en relación al número de interacciones que ocurrirían si todos interactuaran entre sí. Se trata de una medida de cohesión entre los usuarios. **A mayor densidad, mayor calidad de vínculos** y mayor flujo de información |
+
+: Tabla de definiciones
+
+Se realiza una matriz de correlación entre las variables calculadas por el NODE XL.
+
 ```{r}
 #| label: fig-corrr
 #| fig-cap: Matriz de correlación
 
 hashtags2<-
   hashtags %>% 
-  select(where(is.numeric), -c(semana_de_recoleccion))
+  select(starts_with("average"), starts_with("sent"), "graph_density")
+  # select(where(is.numeric), -c(semana_de_recoleccion))
 
 hash_cor<-
   hashtags2 %>% 
   corrr::correlate() %>% 
-  # corrr::rearrange() %>% 
+  corrr::rearrange(absolute = FALSE) %>%
   corrr::shave()
 
-rplot(hash_cor) + 
+rplot(hash_cor, print_cor = TRUE) + #, .order = "alphabet"
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+La @fig-corrr muestra el conjunto de variables siendo correlacionadas unas con otras. Sin embargo, no tiene sentido correlacionar las variables de sentimiento entre sí; ya que, es evidente que a mayor sentimiento positivo menor negativo por lo que en la siguiente matriz se opta por filtrar las variables de sentieminto.
+
+```{r}
+#| label: fig-corrr2
+#| fig-cap: Matriz de correlación sin sentimiento
+
+hashtags3<-
+  hashtags %>% 
+  select(starts_with("average"), "graph_density")
+
+hash_cor2<-
+  hashtags3 %>% 
+  corrr::correlate() %>% 
+  corrr::rearrange(absolute = FALSE) %>%
+  corrr::shave()
+
+rplot(hash_cor2, print_cor = TRUE) + #, .order = "alphabet"
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+```{r}
+
+hashtags %>%
+  # mutate(
+  #   vjust = case_when(
+  #     hashtag %in% "CuarentenaPeru" ~ 0.5,
+  #     hashtag %in% "SinReusYo" ~ 1,
+  #     hashtag %in% "deyapatucovid" ~ 1,
+  #     hashtag %in% "PaltaEmocionada" ~ 1,
+  #     TRUE ~ 0
+  #   ),
+  #   hjust = case_when(
+  #     hashtag %in% "CuarentenaPeru" ~ 0,
+  #     hashtag %in% "SinReusYo" ~ 1,
+  #     hashtag %in% "deyapatucovid" ~ 1,
+  #     hashtag %in% "PaltaEmocionada" ~ 1,
+  #     TRUE ~ 0
+  #   )
+  # ) %>% 
+  ggplot(aes(graph_density, average_eigenvector_centrality)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  # geom_text(
+  #   data = . %>% filter(vertices_usuarios > 550 | total_edges_interacciones > 700),
+  #   aes(label = hashtag, vjust = vjust, hjust = hjust),
+  #   size = 2
+  #   ) +
+  scale_color_brewer(palette = "Dark2") +
+  ggpubr::theme_pubr() +
+  theme(
+    legend.position = "bottom"
+  ) +
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+# summary(lm(graph_density ~ average_eigenvector_centrality, data = hashtags))
 
 ```
 
@@ -560,4 +710,3 @@ predict(pp, test)
 # 6 2.5  1.0
 
 ```
-
