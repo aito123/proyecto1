@@ -29,3 +29,4 @@ title: "notas_2_exploracion"
         -   **PageRank** (31), asigna de forma numérica la relevancia de los documentos indexados por un motor de búsqueda.
 
         -   **WordPair**, pares de palabras com osi fueran Vertex 1 y Vertex 2, y a partir de ello un Count. Necesario para realizar una red semántica (de palabras).
+
