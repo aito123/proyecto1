@@ -1,0 +1,910 @@
+---
+title: "2. Revisión de la base de datos Hashtags"
+author: "Santiago Sotelo"
+date: 10/12/2022
+execute: 
+  echo: false
+  message: false
+  warning: false
+fig-cap-location: top
+---
+
+```{r}
+#| include: false
+#| label: packages
+pacman::p_load(tidyverse, rio, gt, here, janitor, fs, tidymodels, corrr, ggpubr)
+here::i_am("2. exploracion.qmd")
+
+```
+
+## Objetivo
+
+-   Realizar las técnicas disponibles en R que responden a la pregunta de investigación: *"El uso de Twitter durante la cuarentena del COVID-19: Entre la confrontación política y la resiliencia ciudadana"*
+    -   Hipótesis: la necesidad de expresión se trasladó a Twitter dado que habían restricciones de movilidad en pandemia.
+        -   En redes sociales hubo un movimiento tanto de apoyo mutuo-resiliencia como de discusión y erupción política.
+
+```{r}
+#| label: limpieza data
+
+edges<- import("data/edges.xlsx") %>%
+  select(-c(ur_ls_in_tweet, domains_in_tweet, relationship_date_utc, 
+            tweet_date_utc, latitude, longitude)) %>%  # borrar variables innecesarias
+  relocate(tipo, .after = source)
+
+hashtags<- 
+  import("data/hashtags.xlsx") %>% 
+  mutate(
+    cuartiles_de_sentimiento_polaridad = 
+      ordered(as.factor(cuartiles_de_sentimiento_polaridad), 
+              levels = c("Muy Negativo", "Negativo", "Poco Negativo", 
+                         "Neutro", "Poco Positivo", "Positivo", "Muy Positivo"))
+  )
+
+vertices<- import("data/vertices.xlsx") %>% 
+  select(-c(x, y, custom_menu_item_text, web))
+
+```
+
+```{r}
+#| label: graficos
+#0----
+graf0<- 
+  hashtags %>%
+  ggplot(aes(average_geodesic_distance, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_geodesic_distance > 7 | sentimiento_general_percent_percent > 28 | sentimiento_general_percent_percent < -40),
+    aes(label = hashtag),
+    size = 2,
+    vjust="inward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Average geodesic distance") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+#00----
+graf00<- 
+  hashtags %>%
+  filter(graph_density < 0.03) %>%
+  ggplot(aes(graph_density, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(graph_density > 0.018 | sentimiento_general_percent_percent > 28 | sentimiento_general_percent_percent < -40),
+    aes(label = hashtag),
+    size = 2,
+    vjust="inward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Graph density") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+graf00_out<- 
+  hashtags %>% 
+  ggplot(aes(graph_density, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(graph_density > 0.03),
+    aes(label = hashtag),
+    size = 2,
+    vjust="inward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Graph density") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+#1----
+graf1<- 
+  hashtags %>% 
+  filter(average_betweenness_centrality < 800) %>% 
+  ggplot(aes(average_betweenness_centrality, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_betweenness_centrality > 600 | sentimiento_general_percent_percent > 28 | sentimiento_general_percent_percent < -40), 
+    aes(label = hashtag), 
+    size = 2,
+    vjust="inward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Average betweeness centrality") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+graf1_out<-
+  hashtags %>% 
+  # filter(average_betweenness_centrality < 2000) %>% 
+  ggplot(aes(average_betweenness_centrality, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_betweenness_centrality > 800), 
+    aes(label = hashtag), 
+    size = 2,
+    vjust="inward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Average betweeness centrality") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+#2-----
+graf2<- 
+  hashtags %>% 
+  ggplot(aes(average_closeness_centrality, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_closeness_centrality > 0.3 | sentimiento_general_percent_percent > 28 | sentimiento_general_percent_percent < -40), 
+    aes(label = hashtag), 
+    size = 2,
+    vjust="outward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Average closeness centrality") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+#3----
+
+graf3<- 
+  hashtags %>% 
+  filter(average_eigenvector_centrality < 0.12) %>% 
+  ggplot(aes(average_eigenvector_centrality, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_eigenvector_centrality > 0.09 | sentimiento_general_percent_percent > 28 | sentimiento_general_percent_percent < -40), 
+    aes(label = hashtag), 
+    size = 2,
+    vjust="outward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Average eigenvector centrality") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+graf3_out<- 
+  hashtags %>% 
+  ggplot(aes(average_eigenvector_centrality, sentimiento_general_percent_percent)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_eigenvector_centrality > 0.12), 
+    aes(label = hashtag), 
+    size = 2,
+    vjust="outward",hjust="inward"
+    ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1, accuracy = 1)) +
+  ggpubr::theme_pubr() +
+  xlab("Average eigenvector centrality") +
+  ylab("General sentiment percentage") +
+  theme(
+    legend.position = "bottom"
+  ) + 
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+```
+
+<!-- Acá hacer un layout de todos los gráficos -->
+
+## Exploración de cada variable
+
+De manera previa, recogemos las definiciones asociadas con los indicadores calculados por el NODE XL:
+
+::: column-page
++--------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Indicadores                    | Definiciones                                                                                                                                                                                                                                                                                                                                                                                                  | Ejemplo                                                                                                                                                                                                                                                                                                        |
++================================+===============================================================================================================================================================================================================================================================================================================================================================================================================+================================================================================================================================================================================================================================================================================================================+
+| Average geodesic Distance      | El promedio del número de interacciones mínimas que un usuario tendrá que realizar para estar en contacto con cualquier otro usuario que también haya utilizado el Hashtag. Es decir que mientras menor sea la distancia geodésica, la información se esparse con mayor rapidez[^1], dado que hay menos intermediadores entre un actor y otro. Este indicador se asocia al fenómeno ***small-world effect***. | ![](https://www.sci.unich.it/~francesc/teaching/network/img/randomDiameter.png){width="500"}                                                                                                                                                                                                                   |
++--------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Average betweeness centrality  | La capacidad de los usuarios que utilizaron un hashtag para servir **como puente** entre un usuario que busca información y otro capaz de ofrecerla. En este caso, el promedio alude entre los **usuarios de su poder para controlar el flujo de la información,** dado que un nodo que sirve mediador o **puente** entre diferentes nodos tiene mayor control sobre la red.                                  | ![Betweenness Centrality - bsmithactivity3](https://sites.google.com/site/bsmithactivity3/_/rsrc/1312829492087/betweenness-centrality/betweenness2.jpg?height=276&width=320){alt="Betweenness Centrality - bsmithactivity3" width="500"}                                                                       |
+|                                |                                                                                                                                                                                                                                                                                                                                                                                                               |                                                                                                                                                                                                                                                                                                                |
+|                                | La centralidad de intermediación de cada vértice refiere al número de caminos cortos (*shortest paths*) que pasan a través de este vértice[^2].                                                                                                                                                                                                                                                               |                                                                                                                                                                                                                                                                                                                |
++--------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Average closeness centrality   | El **nivel de implicación de los usuarios** en torno al hashtag. También derivará en el tiempo que le toma a un usuario acceder a la información que se encuentra circulando. **A mayor cercanía, mayor nivel de acceso a la información y mayor poder de influencia en la red.**                                                                                                                             | ![](images/paste-61CF924F.png){width="500"}                                                                                                                                                                                                                                                                    |
+|                                |                                                                                                                                                                                                                                                                                                                                                                                                               |                                                                                                                                                                                                                                                                                                                |
+|                                | La centralidad de la cercanía refiere sobre todo a los nodos que son accesibles para la red con la menor cantidad de intermediaciones o saltos[^3].                                                                                                                                                                                                                                                           |                                                                                                                                                                                                                                                                                                                |
++--------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Average eigenvector centrality | Nivel en el que un usuario interactúa con otros usuarios **que tienen buenas conexiones con la red del hashtag**. En este sentido, va un paso más allá que en la medida de los grados.                                                                                                                                                                                                                        | ![](images/paste-2C965AE2.png){width="500"}                                                                                                                                                                                                                                                                    |
+|                                |                                                                                                                                                                                                                                                                                                                                                                                                               |                                                                                                                                                                                                                                                                                                                |
+|                                | Es una medida de influencia basado en la cantidad de nodos "populares" que se conectan con un nodo[^4].                                                                                                                                                                                                                                                                                                       |                                                                                                                                                                                                                                                                                                                |
++--------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Graph density                  | Es el número de intereacciones reales que tienen los usuarios que utilizaron el Hashtag en relación al número de interacciones que ocurrirían si todos interactuarán entre sí. Se trata de una medida de cohesión entre los usuarios. **A mayor densidad, mayor calidad de vínculos** y mayor flujo de información                                                                                            | ![Examples of density in social networks. \| Download Scientific Diagram](https://www.researchgate.net/publication/334988076/figure/fig1/AS:788794546589697@1565074683410/Examples-of-density-in-social-networks.ppm){alt="Examples of density in social networks. | Download Scientific Diagram" width="500"} |
++--------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+: Tabla de definiciones
+:::
+
+[^1]: Para mayor información acerca de la distancia geodésica visitar el siguiente [link](https://www.sci.unich.it/~francesc/teaching/network/geodesic.html#:~:text=Notice%20that%20geodesics%20have%20typically,normally%20distribute%20around%20this%20peak.).
+
+[^2]: Más información sobre *betweenness centrality* en el siguiente [link](https://en.wikipedia.org/wiki/Betweenness_centrality).
+
+[^3]: Para mayor información sobre *closeness centrality* entrar al siguiente [link](https://www.youtube.com/watch?v=0aqvVbTyEmc&ab_channel=Mod%E2%80%A2U%3APowerfulConceptsinSocialScience).
+
+[^4]: Para más información sobre *eigenvector centrality* revisar el siguiente [link](https://www.youtube.com/watch?v=9vs1zSqd070&list=PL1M5TsfDV6Vs7tnHGNgowEUwJW-O8QVp5&index=10&ab_channel=Mod%E2%80%A2U%3APowerfulConceptsinSocialScience).
+
+Se realiza una explicación de la distribución de cada variable a fin de identificar los hashtags más llamativos.
+
+```{r}
+#| label: fig-geodesic
+#| fig-cap: Average geodesic distance por cuartiles de sentimiento
+#| fig-width: 10
+#| fig-height: 6
+
+hashtags %>% 
+  ggplot(aes(x = average_geodesic_distance, y = cuartiles_de_sentimiento_polaridad)) +
+  geom_boxplot(fill = "grey92", outlier.shape = NA) + #ocultar outliers pero considerarlos en ecuación
+  geom_text(
+    data = . %>% filter(average_geodesic_distance < 1.7 | average_geodesic_distance > 5),
+    aes(label = hashtag),
+    size = 2,
+    angle = 45
+    ) +
+  geom_point(
+    aes(color = cuartiles_de_sentimiento_polaridad),
+    ## draw bigger points
+    size = 2,
+    ## add some transparency
+    alpha = .3,
+    ## add some jittering
+    position = position_jitter(
+      ## control randomness and range of jitter
+      seed = 1, width = .01, height = .2
+    )
+  ) +
+  theme_pubclean() +
+  theme(legend.position = "none") #+
+  # scale_y_discrete(expand = expansion(mult = 0.5))
+
+
+```
+
+-   Mientras menor sea la distancia geodésica, menor es el número de interacciones mínimas que un usuario tendrá que realizar para conectarse con otro usuario; es decir, la **información se esparce con mayor rapidez**. Los *hashtags* con menor distancia geodésica son:
+    -   Hashtags muy positivos: saliendodecuarentena, AprendeEnCasa.
+
+    -   Hashtags poco positivos: CuandoEstoSeAcabe, CuarentenaPeru (x2).
+
+    -   Hashtag neutro: Coronovaid19.
+
+    -   Hashtags muy negativos: sintonosyo, NoSalgoCuando, Dia40, CorrupciónSinMascarilla
+
+```{r}
+#| label: fig-betweenness
+#| fig-cap: Average betweenness centrality por cuartiles de sentimiento
+#| fig-width: 10
+#| fig-height: 6
+
+hashtags %>% 
+  ggplot(aes(x = average_betweenness_centrality, y = cuartiles_de_sentimiento_polaridad)) +
+  geom_boxplot(fill = "grey92", outlier.shape = NA) + #ocultar outliers pero considerarlos en ecuación
+  geom_text(
+    data = . %>% filter(average_betweenness_centrality > 1000),
+    aes(label = hashtag),
+    size = 2,
+    angle = 45
+    ) +
+  geom_point(
+    aes(color = cuartiles_de_sentimiento_polaridad),
+    ## draw bigger points
+    size = 2,
+    ## add some transparency
+    alpha = .3,
+    ## add some jittering
+    position = position_jitter(
+      ## control randomness and range of jitter
+      seed = 1, width = .01, height = .2
+    )
+  ) +
+  theme_pubclean() +
+  theme(legend.position = "none")
+
+```
+
+-   Mientras mayor sea la centralidad de intermediación, mayor será el poder de los usuarios para poder controlar el flujo de la información en la red, además es una medida de cohesión de la red. Los *hashtags* con mayor centralidad de intermediación son:
+    -   Hashtags muy positivos: PaltaEmocionada.
+
+    -   Hashtags poco positivos: YoApoyoAlCapitanCueva.
+
+    -   Hashtags negativos: NoTeQuieroEnCasaLatina
+
+```{r}
+#| label: fig-closeness
+#| fig-cap: Average closeness centrality por cuartiles de sentimiento
+#| fig-width: 10
+#| fig-height: 6
+
+hashtags %>% 
+  ggplot(aes(x = average_closeness_centrality, y = cuartiles_de_sentimiento_polaridad)) +
+  geom_boxplot(fill = "grey92", outlier.shape = NA) + #ocultar outliers pero considerarlos en ecuación
+  geom_text(
+    data = . %>% filter(average_closeness_centrality < 0.01 | average_closeness_centrality > 0.2),
+    aes(label = hashtag),
+    size = 2,
+    angle = 45
+    ) +
+  geom_point(
+    aes(color = cuartiles_de_sentimiento_polaridad),
+    ## draw bigger points
+    size = 2,
+    ## add some transparency
+    alpha = .3,
+    ## add some jittering
+    position = position_jitter(
+      ## control randomness and range of jitter
+      seed = 1, width = .01, height = .2
+    )
+  ) +
+  theme_pubclean() +
+  theme(legend.position = "none")
+
+```
+
+-   Mientras mayor sea la centralidad de la cercanía, más implicados en la red se encuentran los usuarios al acceder a las interacciones desde varias fuentes. Los *hashtags* con mayor centralidad de cercanía son:
+    -   Hashtags muy positivos: RedDePersonas, SinPandemiaYo.
+
+    -   Hashtags positivos: YoYaNoRecuerdo, EnEstaCuarentenaSeMeAntoja.
+
+    -   Hashtags poco positivos: ResucitoSi, EmpatiaUsil.
+
+    -   Hashtags poco negativos: YoYaMeOlvideDe, CuandoTeVeaDeNuevo.
+
+    -   Hashtags negativos: ElDoceDeAbrilYo
+
+    -   Hashtags muy negativos: GraciasTecnicos, Butters
+
+```{r}
+#| label: fig-eigenvector
+#| fig-cap: Average eigenvector centrality por cuartiles de sentimiento
+#| fig-width: 10
+#| fig-height: 6
+
+hashtags %>% 
+  mutate(
+    vjust = case_when(
+      hashtag %in% "CuarentenaPeru" ~ -2,
+      hashtag %in% "YoApoyoAlCapitanCueva" ~ -1.5,
+      hashtag %in% "Dia37" ~ +2,
+      TRUE ~ 0.5
+    ),
+    hjust = case_when(
+      TRUE ~ 0.5
+    )
+  ) %>% 
+  ggplot(aes(x = average_eigenvector_centrality, y = cuartiles_de_sentimiento_polaridad)) +
+  geom_boxplot(fill = "grey92", outlier.shape = NA) + #ocultar outliers pero considerarlos en ecuación
+  geom_text(
+    data = . %>% filter(average_eigenvector_centrality < 0.01 | average_eigenvector_centrality > 0.12),
+    aes(label = hashtag, vjust = vjust, hjust = hjust),
+    size = 2,
+    angle = 45
+    ) +
+  geom_point(
+    aes(color = cuartiles_de_sentimiento_polaridad),
+    ## draw bigger points
+    size = 2,
+    ## add some transparency
+    alpha = .3,
+    ## add some jittering
+    position = position_jitter(
+      ## control randomness and range of jitter
+      seed = 1, width = .01, height = .2
+    )
+  ) +
+  theme_pubclean() +
+  theme(legend.position = "none")
+
+```
+
+-   Mientras mayor sea la centralidad del eigenvector, mejores conexiones tienen los nodos entre sí, por lo que es una medida de influencia. Los *hashtags* con mayor centralidad del eigenvector son:
+    -   Hashtags muy positivos: saliendodecuarentena, RedDePersonas.
+
+    -   Hashtags muy negativos: MientoComoPeru21, sintonosyo.
+
+## Hashtags más populares
+
+¿Cuáles son los hashtags más populares? Los hashtags con más interacciones y con más usuarios enganchados son los que suelen destacar en las demás métricas. Se podría realizar una categorización de popularidad de un hashtags mediante una clusterización en tres grupos/clusters con por ejemplo Graph Density.
+
+```{r}
+#| label: fig-popular
+#| fig-cap: Tweets más populares considerando el número de usuarios e interacciones entre ellos.
+
+hashtags %>%
+  mutate(
+    vjust = case_when(
+      hashtag %in% "CuarentenaPeru" ~ 0.5,
+      hashtag %in% "SinReusYo" ~ 1,
+      hashtag %in% "deyapatucovid" ~ 1,
+      hashtag %in% "PaltaEmocionada" ~ 1,
+      TRUE ~ 0
+    ),
+    hjust = case_when(
+      hashtag %in% "CuarentenaPeru" ~ 0,
+      hashtag %in% "SinReusYo" ~ 1,
+      hashtag %in% "deyapatucovid" ~ 1,
+      hashtag %in% "PaltaEmocionada" ~ 1,
+      TRUE ~ 0
+    )
+  ) %>% 
+  ggplot(aes(vertices_usuarios, total_edges_interacciones)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(vertices_usuarios > 550 | total_edges_interacciones > 700),
+    aes(label = hashtag, vjust = vjust, hjust = hjust),
+    size = 2
+    ) +
+  scale_color_brewer(palette = "Dark2") +
+  ggpubr::theme_pubr() +
+  theme(
+    legend.position = "bottom"
+  ) +
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+```
+
+## Correlación entre las variables
+
+Una vez revisado los conceptos principales, se realiza una matriz de correlación entre las variables calculadas por el NODE XL:
+
+```{r}
+#| label: fig-corrr
+#| fig-cap: Matriz de correlación
+
+hashtags2<-
+  hashtags %>% 
+  select(starts_with("average"), starts_with("sent"), "graph_density")
+  # select(where(is.numeric), -c(semana_de_recoleccion))
+
+hash_cor<-
+  hashtags2 %>% 
+  corrr::correlate() %>% 
+  corrr::rearrange(absolute = FALSE) %>%
+  corrr::shave()
+
+rplot(hash_cor, print_cor = TRUE) + #, .order = "alphabet"
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+La @fig-corrr muestra el conjunto de variables siendo correlacionadas unas con otras. Sin embargo, no tiene mucho sentido correlacionar las variables de sentimiento entre sí; ya que, es evidente que a mayor sentimiento positivo menor negativo por lo que en la siguiente matriz se opta por filtrar las variables de sentieminto.
+
+```{r}
+#| label: fig-corrr2
+#| fig-cap: Matriz de correlación sin sentimiento
+
+hashtags3<-
+  hashtags %>% 
+  select(starts_with("average"), "graph_density")
+
+hash_cor2<-
+  hashtags3 %>% 
+  corrr::correlate() %>% 
+  corrr::rearrange(absolute = FALSE) %>%
+  corrr::shave()
+
+rplot(hash_cor2, print_cor = TRUE) + #, .order = "alphabet"
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+Al explorar la matriz de la @fig-corrr2 vemos que existe un coeficiente R de Pearson de `+ 0.75` lo cual es algo llamativo. Por lo que se profundiza en esta relación en el siguiente gráfico.
+
+```{r}
+#| label: fig-cor1
+#| fig-cap: Graph density & average eigenvector centrality
+
+hashtags %>%
+  ggplot(aes(graph_density, average_eigenvector_centrality)) +
+  geom_smooth(method="lm", size = 0.2) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  scale_color_brewer(palette = "Dark2") +
+  ggpubr::theme_pubr() +
+  theme(
+    legend.position = "bottom"
+  ) +
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+```
+
+```{r}
+#| column: screen-inset-right
+
+summary(lm(graph_density ~ average_eigenvector_centrality, data = hashtags))
+
+```
+
+```{r}
+#| label: fig-cor2
+#| column: screen-inset
+#| fig-cap: Estimadores de las variables independientes que buscan explicar graph density
+#| fig-width: 15
+
+summary(lm(
+  graph_density ~ 
+    average_eigenvector_centrality *
+    average_betweenness_centrality * 
+    average_closeness_centrality *
+    average_geodesic_distance, 
+  data = hashtags)) %>% 
+  sjPlot::plot_model()
+
+```
+
+```{r}
+#| column: screen-inset
+
+summary(lm(
+  graph_density ~ 
+    average_eigenvector_centrality *
+    average_betweenness_centrality * 
+    average_closeness_centrality *
+    average_geodesic_distance, 
+  data = hashtags))
+
+```
+
+```{r}
+#| eval: false
+ggscatter(hashtags, x = "graph_density", y = "average_eigenvector_centrality",
+   color = "black", shape = 21, size = 3, # Points color, shape and size
+   add = "reg.line",  # Add regressin line
+   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   conf.int = TRUE, # Add confidence interval
+   cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
+   cor.coeff.args = list(method = "pearson", label.x = 0.02, label.sep = "\n")
+   )
+
+```
+
+A partir de acá se realizaron distintas regresiones considerando la variable **"General Sentiment Percentage"**; sin embargo, para todos los casos la relación fue cercana a nula, es decir, no se pudo rechazar la hipótesis 0.
+
+## Adicional: ¿Cómo interpretar una regresión lineal?
+
+-   Constatar que el *p-value* es menor o igual a 0.05 (\*).
+
+-   Revisar que el R² ajustado se encuentre cerca a 1. Mientras más cerca a uno, mayor será la variabilidad explicada por el modelo.
+
+-   De preferencia que el t-test sea mayor o igual a 2.
+
+## Average geodesic distance
+
+***Average geodesic distance*** **o promedio de la distancia geodésica**: es el promedio del número de interacciones mínimas que un usuario tendrá que realizar para estar en contacto con cualquier otro usuario que también haya utilizado el hashtag.
+
+```{r}
+#| label: fig-graf0
+#| fig-cap: 
+#| - "Average geodesic distance (X) vs General sentiment percentage (Y)"
+#| layout-nrow: 1
+#| dpi: 600
+#| fig-width: 7
+#| fig-asp: 0.8
+
+graf0
+
+```
+
+```{r}
+#| column: screen-inset-right
+
+lm(sentimiento_general_percent_percent ~ average_geodesic_distance, data = hashtags) %>% 
+  summary()
+
+```
+
+-   *P-value* no es significativo.
+
+-   R² ajustado es muy bajo.
+
+## Graph density
+
+***Graph density*** **o densidad del gráfico**: Es el número de interacciones reales que tienen los usuarios que utilizaron el Hashtag en relación al número de interacciones que ocurrirían si todos interactuaran entre sí. Se trata de una medida de cohesión entre los usuarios. A mayor densidad, habrá mayor calidad de vínculos y mayor flujo de información.
+
+```{r}
+#| label: fig-graf00
+#| fig-cap: 
+#| - "Graph density (X) vs General sentiment percentage (Y)"
+#| - "Graph density (X) vs General sentiment percentage (Y) with outliers"
+#| layout-nrow: 1
+#| column: screen-inset
+#| dpi: 600
+
+graf00
+
+graf00_out
+
+```
+
+```{r}
+#| column: screen-inset-right
+
+lm(sentimiento_general_percent_percent ~ graph_density, data = hashtags) %>% 
+  summary()
+
+```
+
+-   *P-value* no es significativo.
+
+-   R² ajustado es muy bajo.
+
+## Average betweeness centrality
+
+***Average betweeness centrality*** **o promedio de la centralidad de intermediación**: La capacidad de los usuarios que utilizaron el hashtag para servir como puente entre un usuario que busca información y otro capaz de ofrecerla. En este caso, el promedio alude entre los usuarios de su poder para controlar el flujo de la información.
+
+```{r}
+#| label: fig-graf1
+#| fig-cap: 
+#| - "Average betweeness centrality (X) vs General sentiment percentage (Y)"
+#| - "Average betweeness centrality (X) vs General sentiment percentage (Y) with outliers"
+#| layout-nrow: 1
+#| column: screen-inset
+#| dpi: 600
+
+graf1
+
+graf1_out
+
+```
+
+```{r}
+#| column: screen-inset-right
+
+lm(sentimiento_general_percent_percent ~ average_betweenness_centrality, data = hashtags %>% filter(average_betweenness_centrality < 800)) %>% 
+  summary()
+
+# summ(lmSent)
+```
+
+-   *P-value* no es significativo.
+
+-   R² ajustado es muy bajo.
+
+## Average closeness centrality
+
+***Average closeness centrality*** **o promedio de la centralidad de la cercanía**: El nivel de implicación de los usuarios en torno al hashtag. También derivará en el tiempo que le toma a un usuario acceder a la información que se encuentra circulando. A mayor cercanía, mayor nivel de acceso a la información y mayor poder de influencia en la red.
+
+```{r}
+#| label: fig-graf2
+#| fig-cap: 
+#| - "Average closeness centrality (X) vs General sentiment percentage (Y)"
+#| layout-nrow: 1
+#| column: body
+#| dpi: 600
+#| fig-width: 7
+#| fig-asp: 0.8
+
+graf2 
+
+```
+
+```{r}
+#| column: screen-inset-right
+
+lm(sentimiento_general_percent_percent ~ average_closeness_centrality, data = hashtags) %>% 
+  summary()
+
+```
+
+-   *P-value* no es significativo.
+
+-   R² ajustado es muy bajo.
+
+## Average eigenvector centrality
+
+***Average eigenvector centrality*** **o promedio de la centralidad eigenvectorial**: El nivel en el que un usuario interactúa con otros usuarios que tienen buenas conexiones con la red del hashtag. En este sentido, va un paso más allá que en la medida de los grados.
+
+```{r}
+#| label: fig-graf3
+#| fig-cap: 
+#| - "Average eigenvector centrality (X) vs General sentiment percentage (Y)"
+#| - "Average eigenvector centrality (X) vs General sentiment percentage (Y) with outliers"
+#| layout-nrow: 1
+#| column: screen-inset
+#| dpi: 600
+
+graf3
+
+graf3_out
+
+```
+
+```{r}
+#| column: screen-inset-right
+
+lm(sentimiento_general_percent_percent ~ average_eigenvector_centrality, data = hashtags %>% filter(average_eigenvector_centrality < 0.12)) %>% 
+  summary()
+
+```
+
+-   *P-value* no es significativo.
+
+-   R² ajustado es muy bajo.
+
+```{r}
+#| label: notas
+#| eval: false
+
+hashtags %>% 
+  select(average_betweenness_centrality, cuartiles_de_sentimiento_polaridad) %>% 
+  GGally::ggpairs(aes(color = cuartiles_de_sentimiento_polaridad),
+          columns = c("average_betweenness_centrality"))
+
+hashtags %>% 
+  select(average_betweenness_centrality, cuartiles_de_sentimiento_polaridad, sentimiento_general_percent_percent) %>% 
+  GGally::ggpairs(aes(color = cuartiles_de_sentimiento_polaridad),
+          columns = c("average_betweenness_centrality",
+                      "sentimiento_general_percent_percent"
+                      ))
+
+sentimiento_general_percent_percent
+
+```
+
+## Cuadrantes estandarizados
+
+Una posibilidad es estandarizar las variables de centralidad y densidad para ver cómo se relacionan estas variables. Sin embargo, el problema es que se tienen alrededor de 4-5 hashtags que tienen valores muy diferentes al promedio (outliers) y sesgan la estandarización (skewness). Se debería tomar alguna decisión acerca de estos hashtags.
+
+-   Average geodesic distance
+-   Graph density
+-   Average betweeness centrality
+-   Average closeness centrality
+-   Average eigenvector centrality
+
+### Average betweeness centrality vs. average closeness centrality
+
+```{r}
+#| label: fig-estandar1
+#| fig-cap: X = average betweeness centrality, Y = average closeness centrality
+#| fig-subcap: 
+#| - Sin estandarización
+#| - Con estandarización
+#| layout-nrow: 1
+#| column: screen-inset
+#| dpi: 600
+
+hashtags1<-
+  hashtags %>% 
+  mutate(
+    across(c(average_geodesic_distance, graph_density, average_betweenness_centrality, average_closeness_centrality, average_eigenvector_centrality), .fns = list(scale = scale), .names = "{.col}_{.fn}")
+  )
+
+# sin estandar
+hashtags %>%
+  ggplot(aes(average_betweenness_centrality, average_closeness_centrality)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_betweenness_centrality > 2500 | average_closeness_centrality > 0.22),
+    aes(label = hashtag),
+    size = 2,
+    vjust="inward",hjust="inward",
+    nudge_x = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ),
+    nudge_y = c(0.005, 0, 0.005, 0.005, 0.005, 0.01, 0.01, 0.01, 0.015, 0 ,0 )
+  ) +
+  ylim(0, NA) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  ggpubr::theme_pubr() +
+  xlab("Average betweeness centrality") +
+  ylab("Average closeness centrality") +
+  theme(
+    legend.position = "bottom"
+  ) +
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+
+
+
+# con estandar
+hashtags1 %>%
+  ggplot(aes(average_betweenness_centrality_scale, average_closeness_centrality_scale)) +
+  geom_point(aes(color = cuartiles_de_sentimiento_polaridad)) +
+  geom_text(
+    data = . %>% filter(average_betweenness_centrality_scale > 2.5 | average_closeness_centrality_scale > 2 | average_closeness_centrality_scale < -1),
+    aes(label = hashtag),
+    size = 2,
+    vjust="inward",hjust="inward",
+    nudge_x = c(0, 0.2, 0, 0, 0, 0.7, 1.3, 0, 0, 0 ,0 ),
+    nudge_y = c(0, 0.2, 0, 0, 0, -0.2, -0.2, 0,-0.2, -0.15 ,-0.3 )
+  ) +
+  geom_smooth(method='lm') +
+  scale_color_brewer(palette = "Dark2") +
+  ggpubr::theme_pubr() +
+  xlab("Average betweeness centrality scale") +
+  ylab("Average closeness centrality scale") +
+  theme(
+    legend.position = "bottom"
+  ) +
+  guides(colour = guide_legend(title = "Polarity Sentiment Quartiles", title.position = "top", label.position = "bottom", nrow = 1))
+
+
+
+
+```
+
+```{r}
+#| eval: false
+?scale
+
+data<-
+  data.frame(
+    hombres = c(1200, 34567, 3456, 12, 3456, 0985, 1211),
+    mujeres = c(1200, 34567, 3456, 12, 3456, 0985, 1211)
+  )
+
+rnorm(n=500) %>% 
+  as.data.frame() %>% 
+  rename(var=1) %>% 
+  ggplot(aes(x=var)) +
+  geom_density()
+
+
+```
+
+```{r}
+#| eval: false
+
+# averiguar método de mínimos y máximos
+library(caret)
+
+train = data.frame(a = 1:3, b = 10:12)
+test = data.frame(a = 1:6, b = 7:12)
+
+pp = preProcess(train, method = "range")
+
+
+predict(pp, train)
+
+#     a   b
+# 1 0.0 0.0
+# 2 0.5 0.5
+# 3 1.0 1.0
+
+predict(pp, test)
+
+#     a    b
+# 1 0.0 -1.5
+# 2 0.5 -1.0
+# 3 1.0 -0.5
+# 4 1.5  0.0
+# 5 2.0  0.5
+# 6 2.5  1.0
+
+```

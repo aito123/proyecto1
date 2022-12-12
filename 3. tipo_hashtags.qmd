@@ -1,0 +1,283 @@
+---
+title: "3. Análisis por tipo de hashtag"
+author: "Santiago Sotelo"
+date: 12/10/2022
+fig-cap-location: top
+tbl-cap-location: top
+toc-depth: 5
+execute: 
+  echo: false
+  message: false
+  warning: false
+
+---
+
+## Objetivo
+
+Realizar un análisis de la base de datos hashtag por tipo de hashtag:
+
+-   Lúdicos
+-   Políticos
+-   Crisis Sanitaria
+-   Apoyo Social
+
+## Observaciones
+
+-   Se excluyeron los hashtags con 50 o menos vértices usuarios (9 hashtags): sintonosyo, MientoComoPeru21, saliendodecuarentena, CuandoEstoSeAcabe, Dia40, RedDePersonas, MarionetaAlva, NoSalgoCuando, ElDoceDeAbrilYo.
+
+```{r}
+#| label: setup
+
+pacman::p_load(tidyverse, rio, gt, here, janitor, fs, tidymodels, corrr, ggpubr, kableExtra)
+range01 <- function(x){(x-min(x))/(max(x)-min(x))} # Normalization (Min-Max Scalar)
+
+```
+
+```{r}
+
+hashtags<- 
+  import("data/hashtags.xlsx") %>% 
+  mutate(
+    cuartiles_de_sentimiento_polaridad = 
+      ordered(as.factor(cuartiles_de_sentimiento_polaridad), 
+              levels = c("Muy Negativo", "Negativo", "Poco Negativo", 
+                         "Neutro", "Poco Positivo", "Positivo", "Muy Positivo"))
+    
+  ) %>% 
+  filter(vertices_usuarios > 50)
+
+```
+
+## Resumen
+
+En la base de datos `hashtags` tenemos 24 variables y 117 observaciones distribuidas en:
+
+```{r}
+#| label: tipo
+#| tbl-fig: Tipo de hashtags
+
+hashtags %>% 
+  count(tipo) %>% 
+  janitor::adorn_totals() %>% 
+  gt()
+
+```
+
+
+La matriz de correlación de las variables de centralidad nos muestran lo siguiente:
+
+```{r}
+#| label: fig-cor
+#| fig-cap: Matriz de correlación
+
+hashtags %>% 
+  mutate(across(where(is.numeric), range01)) %>% #escalar la variable entre 0 1.
+  select(starts_with("average"), "graph_density") %>% 
+  corrr::correlate() %>% 
+  corrr::rearrange(absolute = FALSE) %>%
+  corrr::shave() %>% 
+  rplot(print_cor = TRUE) + #, .order = "alphabet"
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+## Por tipo
+
+### Lúdicos
+
+Respecto a los hashtags lúdicos contamos con 43 hashtags.
+
+```{r}
+#| label: fig-corlud
+#| fig-cap: Matriz de correlación de hashtags lúdicos
+
+hashtags_lud<-
+  hashtags %>% 
+    mutate(across(where(is.numeric), range01)) %>% #escalar la variable entre 0 1.
+    filter(tipo %in% "Lúdico")
+
+hashtags_lud %>% 
+  select(starts_with("average"), "graph_density") %>% 
+  corrr::correlate() %>% 
+  corrr::rearrange(absolute = FALSE) %>%
+  corrr::shave() %>% 
+  rplot(print_cor = TRUE) + #, .order = "alphabet"
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+-   Se observa una correlación positiva importante entre 
+    -   `graph density` y `average eigenvector centrality`.
+
+-   Se observa una correlación positiva moderada entre 
+    -   `average closeness centrality` y `average eigenvector centrality`,
+    -   `average closeness centrality` y `graph density`.
+
+#### Graph Density y Average eigenvector centrality
+
+```{r}
+#| label: fig-linlud
+#| fig-cap: Correlación de Graph Density y Average eigenvector centrality en hashtags lúdicos
+
+hashtags_lud %>% 
+  ggscatter(x = "graph_density", y = "average_eigenvector_centrality",
+   color = "black", shape = 21, size = 3, # Points color, shape and size
+   add = "reg.line",  # Add regression line
+   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   conf.int = TRUE, # Add confidence interval
+   cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
+   cor.coeff.args = list(method = "pearson", p.accuracy = 0.001, label.sep = "\n"),
+   xlab = "Graph density", ylab = "Average eigenvector centrality"
+   )
+```
+
+```{r}
+hashtags_lud %>% 
+  lm(graph_density ~ average_eigenvector_centrality, data = .) %>% 
+  sjPlot::tab_model(
+    show.se = TRUE,
+    show.stat = TRUE,
+    string.pred = "Coeffcient",
+    string.ci = "Conf. Int (95%)",
+    string.se = "Std. Error",
+    string.stat = "T Statistic",
+    string.p = "P-Value",
+    p.style = "numeric_stars",
+    col.order = c("est", "ci", "se", "stat", "p")
+    )
+
+
+```
+
+#### Average closeness centrality y Average eigenvector centrality
+
+```{r}
+#| label: fig-linlud2
+#| fig-cap: Correlación de Average closeness centrality y Average eigenvector centrality en hashtags lúdicos
+
+hashtags_lud %>% 
+  ggscatter(x = "average_closeness_centrality", y = "average_eigenvector_centrality",
+   color = "black", shape = 21, size = 3, # Points color, shape and size
+   add = "reg.line",  # Add regression line
+   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   conf.int = TRUE, # Add confidence interval
+   cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
+   cor.coeff.args = list(method = "pearson", p.accuracy = 0.001, label.sep = "\n"),
+   xlab = "Average closeness centrality", ylab = "Average eigenvector centrality"
+   )
+
+```
+
+```{r}
+hashtags_lud %>% 
+  lm(average_closeness_centrality ~ average_eigenvector_centrality, data = .) %>% 
+  sjPlot::tab_model(
+    show.se = TRUE,
+    show.stat = TRUE,
+    string.pred = "Coeffcient",
+    string.ci = "Conf. Int (95%)",
+    string.se = "Std. Error",
+    string.stat = "T Statistic",
+    string.p = "P-Value",
+    p.style = "numeric_stars",
+    col.order = c("est", "ci", "se", "stat", "p")
+    )
+
+
+```
+
+#### Average closeness centrality y Graph density
+
+```{r}
+#| label: fig-linlud3
+#| fig-cap: Correlación de Average closeness centrality y Graph Density en hashtags lúdicos
+
+hashtags_lud %>% 
+  ggscatter(x = "average_closeness_centrality", y = "graph_density",
+   color = "black", shape = 21, size = 3, # Points color, shape and size
+   add = "reg.line",  # Add regression line
+   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   conf.int = TRUE, # Add confidence interval
+   cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
+   cor.coeff.args = list(method = "pearson", p.accuracy = 0.001, label.sep = "\n"),
+   xlab = "Graph density", ylab = "Average closeness centrality"
+   )
+
+```
+
+```{r}
+hashtags_lud %>% 
+  lm(average_closeness_centrality ~ graph_density, data = .) %>% 
+  sjPlot::tab_model(
+    show.se = TRUE,
+    show.stat = TRUE,
+    string.pred = "Coeffcient",
+    string.ci = "Conf. Int (95%)",
+    string.se = "Std. Error",
+    string.stat = "T Statistic",
+    string.p = "P-Value",
+    p.style = "numeric_stars",
+    col.order = c("est", "ci", "se", "stat", "p")
+    )
+
+
+```
+
+<!-- Introducir la variable tiempo, talvez como una variable interviniente en la regresión. -->
+
+### Políticos
+
+Respecto a los hashtags políticos contamos con 35 hashtags.
+
+```{r}
+#| label: fig-corpol
+#| fig-cap: Matriz de correlación de hashtags políticos
+
+hashtags %>% 
+  filter(tipo %in% "Político") %>% 
+  select(starts_with("average"), "graph_density") %>% 
+  corrr::correlate() %>% 
+  corrr::rearrange(absolute = FALSE) %>%
+  corrr::shave() %>% 
+  rplot(print_cor = TRUE) + #, .order = "alphabet"
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+### Crisis Sanitaria
+
+Respecto a los hashtags sobre crisis sanitaria contamos con 27 hashtags.
+
+```{r}
+#| label: fig-corcrisis
+#| fig-cap: Matriz de correlación de hashtags crisis sanitaria
+
+hashtags %>% 
+  filter(tipo %in% "Crisis Sanitaria") %>% 
+  select(starts_with("average"), "graph_density") %>% 
+  corrr::correlate() %>% 
+  corrr::rearrange(absolute = FALSE) %>%
+  corrr::shave() %>% 
+  rplot(print_cor = TRUE) + #, .order = "alphabet"
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+### Apoyo Social
+
+Respecto a los hashtags sobre apoyo social contamos con 12 hashtags.
+
+```{r}
+#| label: fig-corapoyo
+#| fig-cap: Matriz de correlación de hashtags apoyo social
+
+hashtags %>% 
+  filter(tipo %in% "Apoyo Social") %>% 
+  select(starts_with("average"), "graph_density") %>% 
+  corrr::correlate() %>% 
+  corrr::rearrange(absolute = FALSE) %>%
+  corrr::shave() %>% 
+  rplot(print_cor = TRUE) + #, .order = "alphabet"
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```

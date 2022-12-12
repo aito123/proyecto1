@@ -3,6 +3,7 @@ project:
 lang: es
 execute:
   freeze: auto  # re-render only when source changes
+  echo: false
 
 website:
   title: "Proyecto Tweets"
@@ -13,8 +14,9 @@ website:
         text: "Home"
       - text: "Menu"
         menu:
-          - 1_limpiando_data.qmd
-          - 2_exploracion.qmd
+          - "1. limpiando_data.qmd"
+          - "2. exploracion.qmd"
+          - "3. tipo_hashtags.qmd"
 
 format:
   html:
