@@ -149,6 +149,43 @@ hashtags_lud %>%
 
 ```
 
+##### Interacción con tiempo
+
+```{r}
+#| label: fig-linlud44
+#| fig-cap: Correlación de Graph Density y Average eigenvector centrality en hashtags lúdicos según momento de la pandemia
+
+hashtags_lud %>% 
+  ggscatter(x = "graph_density", y = "average_eigenvector_centrality", color = "periodo",
+   shape = 21, size = 3, palette = "jco",
+   add = "reg.line",
+   # add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   # conf.int = TRUE, # Add confidence interval
+   # cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
+   # cor.coeff.args = list(method = "pearson", p.accuracy = 0.001, label.sep = "\n"),
+   xlab = "Graph density", ylab = "Average eigenvector centrality"
+   ) +
+  stat_cor(aes(color = periodo), method = "pearson", p.accuracy = 0.000001 )
+```
+
+```{r}
+hashtags_lud %>% 
+  lm(graph_density ~ average_eigenvector_centrality * periodo, data = .) %>% 
+  sjPlot::tab_model(
+    show.se = TRUE,
+    show.stat = TRUE,
+    string.pred = "Coeffcient",
+    string.ci = "Conf. Int (95%)",
+    string.se = "Std. Error",
+    string.stat = "T Statistic",
+    string.p = "P-Value",
+    p.style = "numeric_stars",
+    col.order = c("est", "ci", "se", "stat", "p")
+    )
+
+
+```
+
 #### Average closeness centrality y Average eigenvector centrality
 
 ```{r}
