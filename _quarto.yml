@@ -2,7 +2,7 @@ project:
   type: website
 lang: es
 execute:
-  freeze: auto  # re-render only when source changes
+  freeze: true
   echo: false
 
 website:

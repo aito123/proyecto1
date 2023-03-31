@@ -1,7 +1,7 @@
 ---
 title: "3. Análisis por tipo de hashtag"
 author: "Santiago Sotelo"
-date: 12/10/2022
+date: 2022-10-12
 fig-cap-location: top
 tbl-cap-location: top
 toc-depth: 5
@@ -30,6 +30,7 @@ Realizar un análisis de la base de datos hashtag por tipo de hashtag:
 
 pacman::p_load(tidyverse, rio, gt, here, janitor, fs, tidymodels, corrr, ggpubr, kableExtra)
 range01 <- function(x){(x-min(x))/(max(x)-min(x))} # Normalization (Min-Max Scalar)
+here::i_am("3. tipo_hashtags.qmd")
 
 ```
 
